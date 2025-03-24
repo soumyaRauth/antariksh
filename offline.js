@@ -836,7 +836,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     ctx.font = '20px Arial';
     ctx.fillText(`Final Score: ${Math.floor(score)}`, canvas.width / 2, canvas.height / 2 + 40);
-    ctx.fillText('Press Space or Meditate to Begin Again', canvas.width / 2, canvas.height / 2 + 80);
+    ctx.fillText('Press Space or Shakti to Begin Again', canvas.width / 2, canvas.height / 2 + 80);
   }
   
   // Draw start screen
@@ -855,8 +855,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Instructions
     ctx.font = '18px Arial';
-    ctx.fillText('Press Space or Meditate to Begin', canvas.width / 2, canvas.height / 2 + 20);
-    ctx.fillText('Hold Space or Meditate to Levitate', canvas.width / 2, canvas.height / 2 + 50);
+    ctx.fillText('Press Space or Shakti to Begin', canvas.width / 2, canvas.height / 2 + 20);
+    ctx.fillText('Hold Space or Shakti to Levitate', canvas.width / 2, canvas.height / 2 + 50);
     
     // Legend for item explanations
     const legendY = canvas.height / 2 + 90;
