@@ -177,12 +177,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
   
-  // Draw player function - draws an Om symbol
+  // Draw player function - now draws a lotus flower
   function drawPlayer() {
-    // Save context
+    // Save the current context state
     ctx.save();
     
-    // Center point of the symbol
+    // Center point of the lotus
     const centerX = player.x + player.width/2;
     const centerY = player.y + player.height/2;
     
@@ -207,10 +207,18 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.lineWidth = 3;
       
       // Draw yantra shield
+      // Outer circle
       ctx.beginPath();
-      ctx.arc(centerX, centerY, player.width * 0.9, 0, Math.PI * 2);
+      ctx.arc(
+        centerX, 
+        centerY, 
+        player.width * 0.9, 
+        0, 
+        Math.PI * 2
+      );
       ctx.stroke();
       
+      // Inner triangle
       ctx.beginPath();
       ctx.moveTo(centerX, centerY - player.width * 0.7);
       ctx.lineTo(centerX - player.width * 0.6, centerY + player.width * 0.4);
@@ -219,58 +227,65 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.stroke();
     }
     
-    // Draw the Om symbol (ॐ)
-    // Base circle
-    ctx.fillStyle = '#FF8C00'; // Saffron color
+    // Draw the Lotus flower
+    const radius = player.width * 0.45;
+    const petalCount = 12;
+    const petalLength = radius * 0.8;
+    const petalWidth = radius * 0.35;
+    
+    // Draw outer petals (first layer)
+    ctx.fillStyle = '#E57373'; // Light pink
+    for (let i = 0; i < petalCount; i++) {
+      const angle = (i / petalCount) * Math.PI * 2;
+      const petalX = centerX + Math.cos(angle) * radius * 0.6;
+      const petalY = centerY + Math.sin(angle) * radius * 0.6;
+      
+      ctx.save();
+      ctx.translate(petalX, petalY);
+      ctx.rotate(angle);
+      
+      // Draw petal as ellipse
+      ctx.beginPath();
+      ctx.ellipse(0, -petalLength/2, petalWidth, petalLength, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    
+    // Draw inner petals (second layer)
+    ctx.fillStyle = '#F06292'; // Darker pink
+    for (let i = 0; i < petalCount; i++) {
+      const angle = ((i + 0.5) / petalCount) * Math.PI * 2;
+      const petalX = centerX + Math.cos(angle) * radius * 0.3;
+      const petalY = centerY + Math.sin(angle) * radius * 0.3;
+      
+      ctx.save();
+      ctx.translate(petalX, petalY);
+      ctx.rotate(angle);
+      
+      // Draw petal as ellipse
+      ctx.beginPath();
+      ctx.ellipse(0, -petalLength/3, petalWidth/1.5, petalLength/1.5, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    
+    // Draw center of the lotus
+    ctx.fillStyle = '#FFA726'; // Orange
     ctx.beginPath();
-    ctx.arc(centerX, centerY, player.width/2, 0, Math.PI * 2);
+    ctx.arc(centerX, centerY, radius * 0.3, 0, Math.PI * 2);
     ctx.fill();
     
-    // Draw the Om symbol
-    ctx.strokeStyle = '#800000'; // Maroon
-    ctx.lineWidth = 4;
-    
-    // The curve at the top
-    ctx.beginPath();
-    ctx.arc(
-      centerX, 
-      centerY - player.height/8, 
-      player.width/3, 
-      Math.PI * 0.2, 
-      Math.PI * 0.8, 
-      false
-    );
-    ctx.stroke();
-    
-    // The main curve
-    ctx.beginPath();
-    ctx.arc(
-      centerX + player.width/10, 
-      centerY, 
-      player.width/3, 
-      Math.PI * 1.3, 
-      Math.PI * 2.2, 
-      false
-    );
-    ctx.stroke();
-    
-    // The tail
-    ctx.beginPath();
-    ctx.moveTo(centerX + player.width/6, centerY + player.height/6);
-    ctx.lineTo(centerX - player.width/6, centerY + player.height/4);
-    ctx.stroke();
-    
-    // The dot
-    ctx.fillStyle = '#800000';
-    ctx.beginPath();
-    ctx.arc(
-      centerX + player.width/4, 
-      centerY - player.height/6, 
-      player.width/12, 
-      0, 
-      Math.PI * 2
-    );
-    ctx.fill();
+    // Add texture to center with small dots
+    ctx.fillStyle = '#FF8F00'; // Darker orange
+    for (let i = 0; i < 8; i++) {
+      const angle = (i / 8) * Math.PI * 2;
+      const dotX = centerX + Math.cos(angle) * radius * 0.15;
+      const dotY = centerY + Math.sin(angle) * radius * 0.15;
+      
+      ctx.beginPath();
+      ctx.arc(dotX, dotY, radius * 0.05, 0, Math.PI * 2);
+      ctx.fill();
+    }
     
     // Add a pulsing effect if meditating
     if (isMeditating) {
@@ -284,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.stroke();
     }
     
-    // Restore context
+    // Restore the context state
     ctx.restore();
   }
   
