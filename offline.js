@@ -9,6 +9,68 @@ document.addEventListener('DOMContentLoaded', () => {
     pranaBarElement.id = 'pranaBar';
   }
   
+  // Background music setup with simpler approach
+  let isMusicMuted = false;
+  const bgMusic = new Audio('assets/spiritual-music.mp3');
+  bgMusic.loop = true;
+  bgMusic.volume = 0.5;
+  
+  // Handle audio loading error
+  bgMusic.onerror = function() {
+    console.log('Error loading audio file. Make sure you have a file called "spiritual-music.mp3" in an "assets" folder.');
+    // Create an alert about the missing audio
+    const audioAlert = document.createElement('div');
+    audioAlert.style.padding = '10px';
+    audioAlert.style.background = 'rgba(255,0,0,0.1)';
+    audioAlert.style.color = '#FF5555';
+    audioAlert.style.borderRadius = '5px';
+    audioAlert.style.marginBottom = '10px';
+    audioAlert.style.fontSize = '14px';
+    audioAlert.innerHTML = 'Audio file not found! Create an "assets" folder and add a "spiritual-music.mp3" file for background music.';
+    document.querySelector('.container').prepend(audioAlert);
+  };
+  
+  // Create mute button
+  const controlsContainer = document.querySelector('.controls') || document.body;
+  const muteButton = document.createElement('button');
+  muteButton.id = 'muteBtn';
+  muteButton.className = 'control-btn';
+  muteButton.innerHTML = '🔊';
+  muteButton.style.position = 'absolute';
+  muteButton.style.top = '10px';
+  muteButton.style.right = '10px';
+  muteButton.style.zIndex = '100';
+  muteButton.style.background = 'rgba(0, 0, 0, 0.5)';
+  muteButton.style.color = '#fff';
+  muteButton.style.border = 'none';
+  muteButton.style.borderRadius = '50%';
+  muteButton.style.width = '40px';
+  muteButton.style.height = '40px';
+  muteButton.style.fontSize = '20px';
+  muteButton.style.cursor = 'pointer';
+  controlsContainer.appendChild(muteButton);
+  
+  // Mute button click handler
+  muteButton.addEventListener('click', function() {
+    isMusicMuted = !isMusicMuted;
+    
+    if (isMusicMuted) {
+      bgMusic.pause();
+      muteButton.innerHTML = '🔇';
+    } else {
+      bgMusic.play().catch(e => console.log("Couldn't play audio: ", e));
+      muteButton.innerHTML = '🔊';
+    }
+  });
+  
+  // Try to play music on first interaction
+  window.addEventListener('click', function playMusicOnFirstInteraction() {
+    if (!isMusicMuted) {
+      bgMusic.play().catch(e => console.log("Couldn't play audio: ", e));
+    }
+    window.removeEventListener('click', playMusicOnFirstInteraction);
+  }, { once: true });
+  
   // Game variables
   let gameStarted = false;
   let gameOver = false;
@@ -27,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
     height: 50,
     velocityY: 0,
     levitationPower: -0.7,
-    gravity: 0.15,
+    gravity: 0.12,
     maxVelocity: 6,
     prana: 100,
     maxPrana: 100,
@@ -986,6 +1048,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Button controls for meditate button
   const meditateButton = document.getElementById('upBtn');
   if (meditateButton) {
+    meditateButton.innerHTML = 'SHAKTI';
+    
     meditateButton.addEventListener('mousedown', function() {
       if (!gameStarted) {
         gameStarted = true;
@@ -1065,6 +1129,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Create stars
     createStars();
+    
+    // Start music if not muted
+    if (!isMusicMuted) {
+      bgMusic.play().catch(e => console.log("Couldn't play audio: ", e));
+    }
     
     // Start game loop
     requestAnimationFrame(gameLoop);
