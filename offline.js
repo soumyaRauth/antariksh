@@ -9,11 +9,40 @@ document.addEventListener('DOMContentLoaded', () => {
     pranaBarElement.id = 'pranaBar';
   }
   
-  // Background music setup with simpler approach
+  // Background music setup with improved looping
   let isMusicMuted = false;
   const bgMusic = new Audio('assets/spiritual-music.mp3');
   bgMusic.loop = true;
   bgMusic.volume = 0.5;
+  
+  // Audio event listeners for better debugging
+  bgMusic.addEventListener('play', () => {
+    console.log('Music started playing');
+  });
+  
+  bgMusic.addEventListener('ended', () => {
+    console.log('Music ended - should loop automatically');
+    // Force restart if loop fails
+    if (!isMusicMuted) {
+      bgMusic.currentTime = 0;
+      bgMusic.play().catch(e => console.log("Couldn't restart audio: ", e));
+    }
+  });
+  
+  bgMusic.addEventListener('error', (e) => {
+    console.error('Audio error:', e);
+    alert('Could not play background music. Make sure you have created the assets folder with spiritual-music.mp3 file.');
+  });
+  
+  // Add more triggers to play music on different user interactions
+  ['click', 'keydown', 'touchstart'].forEach(eventType => {
+    window.addEventListener(eventType, function playMusic() {
+      if (!isMusicMuted && bgMusic.paused) {
+        bgMusic.play().catch(e => console.log(`Couldn't play audio on ${eventType}: `, e));
+      }
+      window.removeEventListener(eventType, playMusic);
+    }, { once: true });
+  });
   
   // Handle audio loading error
   bgMusic.onerror = function() {
@@ -1133,6 +1162,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start music if not muted
     if (!isMusicMuted) {
       bgMusic.play().catch(e => console.log("Couldn't play audio: ", e));
+    }
+    
+    // Update the instructions text to match the SHAKTI button name
+    const instructionsText = document.querySelector('.controls p');
+    if (instructionsText) {
+      instructionsText.textContent = 'Use Space, Up Arrow, or SHAKTI button to levitate. Collect prana and avoid negative energies!';
     }
     
     // Start game loop
