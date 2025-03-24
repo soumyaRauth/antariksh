@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Offline Game",
+  "version": "1.0",
+  "description": "A fun game that appears when you're offline",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Play Offline Game"
+  },
+  "permissions": [
+    "tabs",
+    "storage",
+    "webRequest"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ]
+} 

@@ -1,0 +1,143 @@
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #2C0A1E; /* Deep maroon background */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  color: #E6BE8A; /* Light gold text */
+  background-image: radial-gradient(circle, #3C1A2B 0%, #2C0A1E 100%);
+}
+
+.container {
+  background-color: rgba(60, 26, 43, 0.8); /* Transparent deep maroon */
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  max-width: 800px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid #8B4513; /* Saddle brown border */
+}
+
+h1 {
+  color: #FFD700; /* Gold */
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+.game-container {
+  margin-top: 15px;
+}
+
+.game-info {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #E6BE8A; /* Light gold */
+}
+
+.score, .high-score, .lives {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 5px 10px;
+  border-radius: 5px;
+  margin-bottom: 5px;
+}
+
+.prana-meter {
+  display: flex;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 5px 10px;
+  border-radius: 5px;
+  flex-grow: 1;
+  margin-left: 10px;
+}
+
+.prana-label {
+  margin-right: 10px;
+  white-space: nowrap;
+}
+
+.prana-bar-container {
+  height: 15px;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.prana-bar {
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(to right, #8B0000, #FFD700); /* Dark red to gold */
+  border-radius: 10px;
+  transition: width 0.3s;
+}
+
+canvas {
+  border: 2px solid #8B4513; /* Saddle brown */
+  background-color: #000000; /* Black background for space */
+  border-radius: 5px;
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); /* Gold glow */
+}
+
+.controls {
+  margin-top: 15px;
+  color: #E6BE8A; /* Light gold */
+}
+
+.control-buttons {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.meditate-btn {
+  background: linear-gradient(to bottom, #FF8C00, #8B4513); /* Saffron to brown */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  width: 120px;
+  height: 50px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.meditate-btn:hover {
+  background: linear-gradient(to bottom, #FFA500, #A0522D); /* Orange to sienna */
+  transform: scale(1.05);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.meditate-btn:active {
+  background: linear-gradient(to bottom, #8B4513, #654321); /* Brown to darker brown */
+  transform: scale(0.95);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.online-notice {
+  background: linear-gradient(to bottom, #FFD700, #DAA520) !important; /* Gold to goldenrod */
+  color: #2C0A1E !important; /* Deep maroon */
+  padding: 10px;
+  margin-top: 20px;
+  border-radius: 5px;
+  animation: pulse 2s infinite;
+  border: 1px solid #B8860B; /* Dark goldenrod */
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+} 

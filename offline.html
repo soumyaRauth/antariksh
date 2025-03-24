@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Antariksh: The Cosmic Journey</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Antariksh: The Cosmic Journey</h1>
+    <p>No internet? Embark on a cosmic journey with an ancient sage. Collect prana and avoid negative energies!</p>
+    
+    <div class="game-container">
+      <div class="game-info">
+        <div class="score">Score: <span id="score">0</span></div>
+        <div class="high-score">High Score: <span id="highScore">0</span></div>
+        <div class="lives">Lives: <span id="lives">3</span></div>
+        <div class="prana-meter">
+          <div class="prana-label">Prana:</div>
+          <div class="prana-bar-container">
+            <div id="pranaBar" class="prana-bar"></div>
+          </div>
+        </div>
+      </div>
+      
+      <canvas id="gameCanvas" width="600" height="400"></canvas>
+      
+      <div class="controls">
+        <div class="control-buttons">
+          <button id="upBtn" class="meditate-btn">MEDITATE</button>
+        </div>
+        <p>Use Space, Up Arrow, or Meditate button to levitate. Collect prana and avoid negative energies!</p>
+      </div>
+    </div>
+  </div>
+  
+  <script src="offline.js"></script>
+</body>
+</html> 
