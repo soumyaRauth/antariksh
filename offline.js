@@ -1810,53 +1810,173 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.fillText('Press Space or Shakti to Begin Again', canvas.width / 2, canvas.height / 2 + 80);
   }
   
-  // Draw start screen
+  // Draw start screen - simple and elegant version
   function drawStartScreen() {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
-    ctx.fillStyle = '#FFD700'; // Gold
+    ctx.fillStyle = '#FFD309'; // Gold
     ctx.font = 'bold 36px Arial';
     ctx.textAlign = 'center';
-    ctx.fillText('Antariksh', canvas.width / 2, canvas.height / 2 - 80);
+    // ctx.fillText('Antariksh', canvas.width / 2, canvas.height / 2 - 80);
     
-    ctx.fillStyle = '#E6BE8A'; // Light gold
-    ctx.font = '24px Arial';
-    ctx.fillText('The Cosmic Journey', canvas.width / 2, canvas.height / 2 - 40);
+    // ctx.fillStyle = '#E6BE8A'; // Light gold
+    // ctx.font = '24px Arial';
+    // ctx.fillText('The Cosmic Journey', canvas.width / 2, canvas.height / 2 - 40);
     
     // Instructions
-    ctx.font = '18px Arial';
-    ctx.fillText('Press Space or Shakti to Begin', canvas.width / 2, canvas.height / 2 + 20);
-    ctx.fillText('Hold Space or Shakti to Levitate', canvas.width / 2, canvas.height / 2 + 50);
+    ctx.font = '16px Arial';
+    ctx.fillText('Press Space or Shakti to Begin', canvas.width / 2, canvas.height / 2 + 10);
+    ctx.fillText('Hold Space or Shakti to Levitate', canvas.width / 2, canvas.height / 2 + 35);
     
-    // Legend for item explanations
+    // Legend for item explanations - with smaller font
     const legendY = canvas.height / 2 + 90;
-    const itemSpacing = 30;
+    const itemSpacing = 25; // Slightly reduced spacing
+    
+    // Use smaller font for legends
+    ctx.font = '16px Arial'; // Reduced from 18px to 16px
     
     // Draw prana with label
     ctx.fillStyle = '#FFD700'; // Gold
     ctx.beginPath();
-    ctx.arc(canvas.width/2 - 120, legendY, 10, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.arc(canvas.width/2 - 120, legendY, 8, 0, Math.PI * 2); // Slightly smaller circle
+    
     ctx.fillStyle = '#E6BE8A'; // Light gold
     ctx.textAlign = 'left';
-    ctx.fillText('Lotus: Collect for prana', canvas.width/2 - 90, legendY);
+    // ctx.fillText('- Lotus: Collect for prana', canvas.width/2 - 100, legendY + 5); // Added vertical alignment (+5)
     
     // Draw obstacle with label
     ctx.fillStyle = '#8B0000'; // Dark red
     ctx.beginPath();
-    ctx.arc(canvas.width/2 - 120, legendY + itemSpacing, 10, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.arc(canvas.width/2 - 120, legendY + itemSpacing, 8, 0, Math.PI * 2);
+   
     ctx.fillStyle = '#E6BE8A'; // Light gold
-    ctx.fillText('Negative energies: Avoid these', canvas.width/2 - 90, legendY + itemSpacing);
+    // ctx.fillText('- Negative energies: Avoid these', canvas.width/2 - 100, legendY + itemSpacing + 5);
     
     // Draw protection with label
     ctx.fillStyle = '#C2B280'; // Sand/gold
     ctx.beginPath();
-    ctx.arc(canvas.width/2 - 120, legendY + itemSpacing*2, 10, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = '#E6BE8A'; // Light gold
-    ctx.fillText('Yantras: Temporary protection', canvas.width/2 - 90, legendY + itemSpacing*2);
+    ctx.arc(canvas.width/2 - 120, legendY + itemSpacing*2, 8, 0, Math.PI * 2);
+    // ctx.fill();
+    // ctx.fillStyle = '#E6BE8A'; // Light gold
+    // ctx.fillText('Yantras: Temporary protection', canvas.width/2 - 100, legendY + itemSpacing*2 + 5);
+  }
+
+  // Helper function to draw elegant legend icons
+  function drawLegendIcon(type, x, y, size, theme) {
+    ctx.save();
+    
+    if (type === 'prana') {
+      // Draw glowing orb
+      const gradient = ctx.createRadialGradient(x, y, 0, x, y, size);
+      gradient.addColorStop(0, theme.collectibles.prana[0]);
+      gradient.addColorStop(0.7, theme.collectibles.prana[1]);
+      gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+      
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(x, y, size * 1.2, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Center highlight
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.beginPath();
+      ctx.arc(x, y, size * 0.4, 0, Math.PI * 2);
+      ctx.fill();
+    } 
+    else if (type === 'negativity') {
+      // Draw jagged crystal
+      ctx.fillStyle = theme.obstacles.negativity[0];
+      ctx.beginPath();
+      ctx.moveTo(x, y - size);
+      ctx.lineTo(x + size * 0.7, y - size * 0.3);
+      ctx.lineTo(x + size * 0.3, y + size * 0.8);
+      ctx.lineTo(x - size * 0.5, y + size * 0.4);
+      ctx.lineTo(x - size * 0.8, y - size * 0.5);
+      ctx.closePath();
+      ctx.fill();
+      
+      // Add inner details
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, y - size * 0.3);
+      ctx.lineTo(x - size * 0.3, y + size * 0.4);
+      ctx.stroke();
+    }
+    else if (type === 'shield') {
+      // Draw yantra protection symbol
+      ctx.strokeStyle = theme.collectibles.prana[0];
+      ctx.lineWidth = 2;
+      
+      // Outer circle
+      ctx.beginPath();
+      ctx.arc(x, y, size, 0, Math.PI * 2);
+      ctx.stroke();
+      
+      // Inner triangle
+      ctx.beginPath();
+      ctx.moveTo(x, y - size * 0.7);
+      ctx.lineTo(x - size * 0.6, y + size * 0.4);
+      ctx.lineTo(x + size * 0.6, y + size * 0.4);
+      ctx.closePath();
+      ctx.stroke();
+    }
+    
+    ctx.restore();
+  }
+
+  // Draw theme selector preview
+  function drawThemeSelector(x, y) {
+    const themes = Object.keys(colorThemes);
+    const boxSize = 30;
+    const spacing = 10;
+    const totalWidth = themes.length * boxSize + (themes.length - 1) * spacing;
+    
+    let startX = x - totalWidth / 2;
+    
+    ctx.font = '14px "Quicksand", sans-serif';
+    ctx.fillStyle = colorThemes[currentTheme].ui.text;
+    ctx.textAlign = 'center';
+    ctx.fillText('Select Theme:', x, y - 25);
+    
+    themes.forEach((themeName, index) => {
+      const theme = colorThemes[themeName];
+      const boxX = startX + index * (boxSize + spacing);
+      
+      // Draw theme preview box
+      const gradient = ctx.createLinearGradient(boxX, y - boxSize/2, boxX + boxSize, y + boxSize/2);
+      gradient.addColorStop(0, theme.background[0]);
+      gradient.addColorStop(1, theme.background[1]);
+      
+      ctx.fillStyle = gradient;
+      ctx.strokeStyle = themeName === currentTheme ? theme.ui.heading : 'rgba(255, 255, 255, 0.3)';
+      ctx.lineWidth = themeName === currentTheme ? 3 : 1;
+      
+      // Draw rounded rectangle
+      ctx.beginPath();
+      ctx.roundRect(boxX, y - boxSize/2, boxSize, boxSize, 5);
+      ctx.fill();
+      ctx.stroke();
+      
+      // Theme name below
+      ctx.font = '12px "Quicksand", sans-serif';
+      ctx.fillStyle = theme.ui.text;
+      ctx.fillText(themeName.charAt(0).toUpperCase(), boxX + boxSize/2, y + 5);
+    });
+  }
+
+  // Helper function to convert hex to rgb
+  function hexToRgb(hex) {
+    // Remove # if present
+    hex = hex.replace('#', '');
+    
+    // Parse r, g, b values
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    
+    return `${r}, ${g}, ${b}`;
   }
   
   // Game loop
