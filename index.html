@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Antariksh: The Cosmic Journey</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Quicksand:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="stars-container">
+    <div id="stars"></div>
+    <div id="stars2"></div>
+    <div id="stars3"></div>
+  </div>
+
+  <div class="cosmic-glow"></div>
+  
+  <div class="container">
+    <header class="cosmic-header">
+      <h1 class="cosmic-title">Antariksh<span class="title-divider">:</span><span class="subtitle">The Cosmic Journey</span></h1>
+      <div class="cosmic-intro">
+        <p>Embark on a mystical voyage through the cosmos with an ancient astral sage.</p>
+        <p class="mission">Collect cosmic prana <span class="energy-orb"></span> and transcend negative energies <span class="negative-orb"></span></p>
+      </div>
+    </header>
+    
+    <div class="sound-credit">
+      <p>Music: <a href="https://elements.envato.com/this-is-meditation-XYFTLYY" target="_blank">This is Meditation</a> from Envato Elements</p>
+    </div>
+    
+    <div class="game-container">
+      <!-- Game info display -->
+      <div class="game-info">
+        <div class="score">Score: <span id="score">0</span></div>
+        <div class="high-score">High Score: <span id="highScore">0</span></div>
+        <div class="lives">Lives: <span id="lives">3</span></div>
+        <div class="prana-meter">
+          <div class="prana-label">Prana:</div>
+          <div class="prana-bar-container">
+            <div id="pranaBar" class="prana-bar"></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Canvas for game rendering -->
+      <canvas id="gameCanvas" width="600" height="400"></canvas>
+      
+      <!-- Game controls -->
+      <div class="controls">
+        <div class="control-buttons">
+          <button id="upBtn" class="meditate-btn">
+            <span class="btn-text">SHAKTI</span>
+            <span class="btn-glow"></span>
+          </button>
+          <button id="fullscreenBtn" class="fullscreen-btn" title="Toggle Fullscreen">
+            <span class="fullscreen-icon">⛶</span>
+          </button>
+        </div>
+        <div class="theme-selector">
+          <label for="themeSelect">Theme:</label>
+          <select id="themeSelect">
+            <option value="spiritual">Spiritual</option>
+            <option value="cosmos">Cosmos</option>
+            <option value="nature">Nature</option>
+            <option value="golden">Golden</option>
+          </select>
+        </div>
+        <p class="game-instructions">Use <kbd>Space</kbd>, <kbd>↑</kbd>, or <kbd>SHAKTI</kbd> button to levitate. Collect prana and avoid negative energies!</p>
+      </div>
+    </div>
+  </div>
+  
+  <script src="offline.js"></script>
+</body>
+</html> 

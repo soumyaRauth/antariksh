@@ -482,129 +482,149 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   ];
   
-  // Draw player function - now draws a lotus flower
+  // Replace the existing drawPlayer function with this new version
   function drawPlayer() {
     // Save the current context state
     ctx.save();
     
-    // Center point of the lotus
+    // Center point of the star
     const centerX = player.x + player.width/2;
     const centerY = player.y + player.height/2;
     
+    // Calculate rotation angle based on velocity
+    const tiltAngle = player.velocityY * 0.05;
+    
+    // Move to center, rotate, then move back
+    ctx.translate(centerX, centerY);
+    ctx.rotate(tiltAngle);
+    ctx.translate(-centerX, -centerY);
+    
+    // Calculate color based on position - creates a shifting color effect as the star moves
+    const hue = (Date.now() / 20 + player.x) % 360;
+    const mainColor = `hsl(${hue}, 100%, 60%)`;
+    const glowColor = `hsl(${(hue + 180) % 360}, 100%, 70%)`;
+    
     // Draw meditation aura if meditating
     if (player.meditationGlow > 0) {
-      const gradient = ctx.createRadialGradient(
+      const gradientAura = ctx.createRadialGradient(
         centerX, centerY, 0,
         centerX, centerY, player.width * 1.5
       );
-      gradient.addColorStop(0, `rgba(255, 215, 0, ${player.meditationGlow * 0.5})`);
-      gradient.addColorStop(1, 'rgba(255, 140, 0, 0)');
+      gradientAura.addColorStop(0, `rgba(255, 215, 0, ${player.meditationGlow * 0.5})`);
+      gradientAura.addColorStop(1, 'rgba(255, 140, 0, 0)');
       
-      ctx.fillStyle = gradient;
+      ctx.fillStyle = gradientAura;
       ctx.beginPath();
       ctx.arc(centerX, centerY, player.width * 1.5, 0, Math.PI * 2);
       ctx.fill();
     }
     
-    // Draw shield effect if player is shielded
-    if (player.shielded) {
-      ctx.strokeStyle = 'rgba(255, 215, 0, 0.7)';
-      ctx.lineWidth = 3;
-      
-      // Draw yantra shield
-      // Outer circle
-      ctx.beginPath();
-      ctx.arc(
-        centerX, 
-        centerY, 
-        player.width * 0.9, 
-        0, 
-        Math.PI * 2
-      );
-      ctx.stroke();
-      
-      // Inner triangle
-      ctx.beginPath();
-      ctx.moveTo(centerX, centerY - player.width * 0.7);
-      ctx.lineTo(centerX - player.width * 0.6, centerY + player.width * 0.4);
-      ctx.lineTo(centerX + player.width * 0.6, centerY + player.width * 0.4);
-      ctx.closePath();
-      ctx.stroke();
-    }
+    // Draw outer glow
+    const glowRadius = player.width * 0.9;
+    const glowGradient = ctx.createRadialGradient(
+      centerX, centerY, player.width * 0.3,
+      centerX, centerY, glowRadius
+    );
+    glowGradient.addColorStop(0, `hsla(${hue}, 100%, 70%, 0.8)`);
+    glowGradient.addColorStop(0.5, `hsla(${hue}, 100%, 60%, 0.4)`);
+    glowGradient.addColorStop(1, `hsla(${hue}, 100%, 50%, 0)`);
     
-    // Draw the Lotus flower
-    const radius = player.width * 0.45;
-    const petalCount = 12;
-    const petalLength = radius * 0.8;
-    const petalWidth = radius * 0.35;
-    
-    // Draw outer petals (first layer)
-    ctx.fillStyle = '#E57373'; // Light pink
-    for (let i = 0; i < petalCount; i++) {
-      const angle = (i / petalCount) * Math.PI * 2;
-      const petalX = centerX + Math.cos(angle) * radius * 0.6;
-      const petalY = centerY + Math.sin(angle) * radius * 0.6;
-      
-      ctx.save();
-      ctx.translate(petalX, petalY);
-      ctx.rotate(angle);
-      
-      // Draw petal as ellipse
-      ctx.beginPath();
-      ctx.ellipse(0, -petalLength/2, petalWidth, petalLength, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-    
-    // Draw inner petals (second layer)
-    ctx.fillStyle = '#F06292'; // Darker pink
-    for (let i = 0; i < petalCount; i++) {
-      const angle = ((i + 0.5) / petalCount) * Math.PI * 2;
-      const petalX = centerX + Math.cos(angle) * radius * 0.3;
-      const petalY = centerY + Math.sin(angle) * radius * 0.3;
-      
-      ctx.save();
-      ctx.translate(petalX, petalY);
-      ctx.rotate(angle);
-      
-      // Draw petal as ellipse
-      ctx.beginPath();
-      ctx.ellipse(0, -petalLength/3, petalWidth/1.5, petalLength/1.5, 0, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-    }
-    
-    // Draw center of the lotus
-    ctx.fillStyle = '#FFA726'; // Orange
+    ctx.fillStyle = glowGradient;
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius * 0.3, 0, Math.PI * 2);
+    ctx.arc(centerX, centerY, glowRadius, 0, Math.PI * 2);
     ctx.fill();
     
-    // Add texture to center with small dots
-    ctx.fillStyle = '#FF8F00'; // Darker orange
-    for (let i = 0; i < 8; i++) {
-      const angle = (i / 8) * Math.PI * 2;
-      const dotX = centerX + Math.cos(angle) * radius * 0.15;
-      const dotY = centerY + Math.sin(angle) * radius * 0.15;
-      
-      ctx.beginPath();
-      ctx.arc(dotX, dotY, radius * 0.05, 0, Math.PI * 2);
-      ctx.fill();
-    }
+    // Draw star shape
+    const starPoints = 5;
+    const outerRadius = player.width * 0.4;
+    const innerRadius = player.width * 0.2;
     
-    // Add a pulsing effect if meditating
-    if (isMeditating) {
-      ctx.globalAlpha = 0.8 + Math.sin(Date.now() / 200) * 0.2;
+    ctx.beginPath();
+    for (let i = 0; i < starPoints * 2; i++) {
+      const radius = i % 2 === 0 ? outerRadius : innerRadius;
+      const angle = (i / (starPoints * 2)) * Math.PI * 2;
+      const x = centerX + Math.cos(angle) * radius;
+      const y = centerY + Math.sin(angle) * radius;
       
-      // Draw a subtle glow
-      ctx.strokeStyle = '#FFD700'; // Gold
-      ctx.lineWidth = 2;
+      if (i === 0) {
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+    }
+    ctx.closePath();
+    
+    // Create a star gradient fill
+    const starGradient = ctx.createRadialGradient(
+      centerX, centerY, innerRadius * 0.5,
+      centerX, centerY, outerRadius
+    );
+    starGradient.addColorStop(0, 'white');
+    starGradient.addColorStop(0.5, mainColor);
+    starGradient.addColorStop(1, glowColor);
+    
+    ctx.fillStyle = starGradient;
+    ctx.fill();
+    
+    // Add pulsing core in the center
+    const pulseSize = 1 + 0.2 * Math.sin(Date.now() / 150);
+    const coreRadius = innerRadius * 0.6 * pulseSize;
+    
+    ctx.fillStyle = 'white';
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, coreRadius, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Create twinkling effect
+    const twinkleCount = 3;
+    const maxTwinkleLength = outerRadius * 0.8;
+    
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    
+    for (let i = 0; i < twinkleCount; i++) {
+      const angle = (Date.now() / 500 + i * (Math.PI * 2 / twinkleCount)) % (Math.PI * 2);
+      const twinkleLength = maxTwinkleLength * (0.5 + 0.5 * Math.sin(Date.now() / 200 + i));
+      
       ctx.beginPath();
-      ctx.arc(centerX, centerY, player.width/2 + 5, 0, Math.PI * 2);
+      ctx.moveTo(
+        centerX + Math.cos(angle) * outerRadius,
+        centerY + Math.sin(angle) * outerRadius
+      );
+      ctx.lineTo(
+        centerX + Math.cos(angle) * (outerRadius + twinkleLength),
+        centerY + Math.sin(angle) * (outerRadius + twinkleLength)
+      );
       ctx.stroke();
     }
     
-    // Restore the context state
+    // Draw shield effect if player is shielded
+    if (player.shielded) {
+      const shieldPulse = 1 + 0.1 * Math.sin(Date.now() / 150);
+      const shieldRadius = player.width * 0.8 * shieldPulse;
+      
+      // Create a rainbow shield effect
+      const shieldGradient = ctx.createLinearGradient(
+        centerX - shieldRadius, centerY - shieldRadius,
+        centerX + shieldRadius, centerY + shieldRadius
+      );
+      
+      shieldGradient.addColorStop(0, 'rgba(255, 0, 255, 0.5)');
+      shieldGradient.addColorStop(0.25, 'rgba(0, 255, 255, 0.5)');
+      shieldGradient.addColorStop(0.5, 'rgba(0, 255, 0, 0.5)');
+      shieldGradient.addColorStop(0.75, 'rgba(255, 255, 0, 0.5)');
+      shieldGradient.addColorStop(1, 'rgba(255, 0, 0, 0.5)');
+      
+      ctx.strokeStyle = shieldGradient;
+      ctx.lineWidth = 5;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, shieldRadius, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    
+    // Restore context
     ctx.restore();
   }
   
