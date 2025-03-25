@@ -154,98 +154,98 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Chrome storage not available:', e);
   }
   
-  // Color themes - MOVED TO BEFORE INIT IS CALLED
+  // Color themes - refined for more elegant aesthetics
   const colorThemes = {
     spiritual: {
       name: 'Spiritual',
       background: ['#1A0A14', '#000000'],
-      playerPetals: ['#E57373', '#F06292'],
-      playerCenter: '#FFD700',
-      stars: ['#FFFFFF', '#FFD700', '#E6BE8A'],
+      playerPetals: ['#F48FB1', '#EC407A'],
+      playerCenter: '#FFD54F',
+      stars: ['#FFFFFF', '#FFE082', '#FFECB3'],
       obstacles: {
-        negativity: ['#8B0000', '#FF0000'],
-        illusion: ['#4B0082', '#8A2BE2', '#9370DB'],
-        attachment: ['#800020', '#A52A2A']
+        negativity: ['#7B1FA2', '#9C27B0'],
+        illusion: ['#4527A0', '#5E35B1', '#7E57C2'],
+        attachment: ['#512DA8', '#673AB7']
       },
       collectibles: {
-        prana: ['#FFD700', '#FFA500'],
-        cosmic: ['#E0FFFF', '#87CEEB']
+        prana: ['#FFD54F', '#FFB300'],
+        cosmic: ['#E8F5E9', '#A5D6A7']
       },
       ui: {
-        container: 'rgba(60, 26, 43, 0.8)',
-        text: '#E6BE8A',
-        heading: '#FFD700',
-        button: ['#FF8C00', '#8B4513'],
-        pranaBar: ['#8B0000', '#FFD700']
+        container: 'rgba(49, 27, 51, 0.85)',
+        text: '#D7CCC8',
+        heading: '#FFD54F',
+        button: ['#FF9800', '#F57C00'],
+        pranaBar: ['#7B1FA2', '#FFD54F']
       }
     },
-    cosmic: {
-      name: 'Cosmic',
-      background: ['#0A0A2A', '#000033'],
-      playerPetals: ['#00BFFF', '#1E90FF'],
-      playerCenter: '#E0FFFF',
-      stars: ['#FFFFFF', '#00FFFF', '#87CEFA'],
+    cosmos: {
+      name: 'Cosmos',
+      background: ['#0D0221', '#090420'],
+      playerPetals: ['#64B5F6', '#42A5F5'],
+      playerCenter: '#4FC3F7',
+      stars: ['#FFFFFF', '#B3E5FC', '#E1F5FE'],
       obstacles: {
-        negativity: ['#FF4500', '#FF6347'],
-        illusion: ['#9400D3', '#9932CC', '#BA55D3'],
-        attachment: ['#8B008B', '#9932CC']
+        negativity: ['#D32F2F', '#F44336'],
+        illusion: ['#6A1B9A', '#8E24AA', '#AB47BC'],
+        attachment: ['#283593', '#3949AB']
       },
       collectibles: {
-        prana: ['#00FFFF', '#00CED1'],
-        cosmic: ['#F0F8FF', '#B0E0E6']
+        prana: ['#4FC3F7', '#29B6F6'],
+        cosmic: ['#E1F5FE', '#81D4FA']
       },
       ui: {
-        container: 'rgba(25, 25, 112, 0.8)',
-        text: '#B0E0E6',
-        heading: '#00FFFF',
-        button: ['#1E90FF', '#4169E1'],
-        pranaBar: ['#0000CD', '#00BFFF']
+        container: 'rgba(13, 71, 161, 0.75)',
+        text: '#E3F2FD',
+        heading: '#4FC3F7',
+        button: ['#039BE5', '#0277BD'],
+        pranaBar: ['#01579B', '#4FC3F7']
       }
     },
-    forest: {
-      name: 'Forest',
-      background: ['#0A1F0A', '#001F00'],
-      playerPetals: ['#98FB98', '#90EE90'],
-      playerCenter: '#FFFF00',
-      stars: ['#FFFFFF', '#F0FFF0', '#7FFF00'],
+    nature: {
+      name: 'Nature',
+      background: ['#1B5E20', '#033A16'],
+      playerPetals: ['#AED581', '#9CCC65'],
+      playerCenter: '#FFEE58',
+      stars: ['#FFFFFF', '#DCEDC8', '#F0F4C3'],
       obstacles: {
-        negativity: ['#8B4513', '#A0522D'],
-        illusion: ['#228B22', '#3CB371', '#2E8B57'],
-        attachment: ['#556B2F', '#6B8E23']
+        negativity: ['#6D4C41', '#795548'],
+        illusion: ['#2E7D32', '#388E3C', '#43A047'],
+        attachment: ['#689F38', '#7CB342']
       },
       collectibles: {
-        prana: ['#7FFF00', '#32CD32'],
-        cosmic: ['#F5FFFA', '#98FB98']
+        prana: ['#CDDC39', '#AFB42B'],
+        cosmic: ['#F1F8E9', '#C5E1A5']
       },
       ui: {
-        container: 'rgba(34, 85, 34, 0.8)',
-        text: '#F0FFF0',
-        heading: '#7FFF00',
-        button: ['#32CD32', '#006400'],
-        pranaBar: ['#006400', '#7FFF00']
+        container: 'rgba(27, 94, 32, 0.8)',
+        text: '#F1F8E9',
+        heading: '#CDDC39',
+        button: ['#8BC34A', '#689F38'],
+        pranaBar: ['#33691E', '#CDDC39']
       }
     },
-    sunset: {
-      name: 'Sunset',
-      background: ['#4A1C24', '#000000'],
-      playerPetals: ['#FFA07A', '#FF7F50'],
-      playerCenter: '#FFFF00',
-      stars: ['#FFFFFF', '#FFFACD', '#FFD700'],
+    golden: {
+      name: 'Golden',
+      background: ['#4E342E', '#3E2723'],
+      playerPetals: ['#FFCC80', '#FFB74D'],
+      playerCenter: '#FFF176',
+      stars: ['#FFFFFF', '#FFF9C4', '#FFF59D'],
       obstacles: {
-        negativity: ['#8B0000', '#A52A2A'],
-        illusion: ['#FF6347', '#FF7F50', '#FA8072'],
-        attachment: ['#CD5C5C', '#F08080']
+        negativity: ['#BF360C', '#D84315'],
+        illusion: ['#FF7043', '#FF5722', '#F4511E'],
+        attachment: ['#A1887F', '#8D6E63']
       },
       collectibles: {
-        prana: ['#FFD700', '#FFA500'],
-        cosmic: ['#FFFAF0', '#FFDAB9']
+        prana: ['#FFD600', '#FFC107'],
+        cosmic: ['#FFFDE7', '#FFF176']
       },
       ui: {
-        container: 'rgba(139, 69, 19, 0.8)',
-        text: '#FFE4B5',
-        heading: '#FFD700',
-        button: ['#FF8C00', '#CD853F'],
-        pranaBar: ['#B22222', '#FFD700']
+        container: 'rgba(62, 39, 35, 0.8)',
+        text: '#EFEBE9',
+        heading: '#FFD600',
+        button: ['#FF9800', '#EF6C00'],
+        pranaBar: ['#BF360C', '#FFD600']
       }
     }
   };
@@ -2149,4 +2149,81 @@ document.addEventListener('DOMContentLoaded', () => {
   
   // Start the game after defining all functions
   init();
+  
+  // Add fullscreen functionality
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const gameContainer = document.querySelector('.game-container');
+  
+  if (fullscreenBtn) {
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+  }
+  
+  function toggleFullscreen() {
+    if (!document.fullscreenElement &&    // Standard
+        !document.mozFullScreenElement && // Firefox
+        !document.webkitFullscreenElement && // Chrome, Safari, Opera
+        !document.msFullscreenElement) {  // IE/Edge
+      
+      // Enter fullscreen
+      if (gameContainer.requestFullscreen) {
+        gameContainer.requestFullscreen();
+      } else if (gameContainer.mozRequestFullScreen) {
+        gameContainer.mozRequestFullScreen();
+      } else if (gameContainer.webkitRequestFullscreen) {
+        gameContainer.webkitRequestFullscreen();
+      } else if (gameContainer.msRequestFullscreen) {
+        gameContainer.msRequestFullscreen();
+      }
+      
+      document.body.classList.add('fullscreen-game');
+      fullscreenBtn.querySelector('.fullscreen-icon').innerHTML = '⤢';
+      
+    } else {
+      // Exit fullscreen
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.mozCancelFullScreen) {
+        document.mozCancelFullScreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+      
+      document.body.classList.remove('fullscreen-game');
+      fullscreenBtn.querySelector('.fullscreen-icon').innerHTML = '⛶';
+    }
+  }
+  
+  // Listen for fullscreen change events
+  document.addEventListener('fullscreenchange', updateFullscreenUI);
+  document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+  document.addEventListener('mozfullscreenchange', updateFullscreenUI);
+  document.addEventListener('MSFullscreenChange', updateFullscreenUI);
+  
+  function updateFullscreenUI() {
+    if (document.fullscreenElement ||
+        document.webkitFullscreenElement ||
+        document.mozFullScreenElement ||
+        document.msFullscreenElement) {
+      document.body.classList.add('fullscreen-game');
+      fullscreenBtn.querySelector('.fullscreen-icon').innerHTML = '⤢';
+    } else {
+      document.body.classList.remove('fullscreen-game');
+      fullscreenBtn.querySelector('.fullscreen-icon').innerHTML = '⛶';
+    }
+    
+    // Resize canvas to fill screen in fullscreen mode
+    const canvas = document.getElementById('gameCanvas');
+    if (document.fullscreenElement) {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    } else {
+      canvas.width = 600;
+      canvas.height = 400;
+    }
+    
+    // Recreate stars after resize
+    createStars();
+  }
 }); 
