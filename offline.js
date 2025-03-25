@@ -154,28 +154,191 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Chrome storage not available:', e);
   }
   
-  // Create stars (celestial bodies)
+  // Color themes - MOVED TO BEFORE INIT IS CALLED
+  const colorThemes = {
+    spiritual: {
+      name: 'Spiritual',
+      background: ['#1A0A14', '#000000'],
+      playerPetals: ['#E57373', '#F06292'],
+      playerCenter: '#FFD700',
+      stars: ['#FFFFFF', '#FFD700', '#E6BE8A'],
+      obstacles: {
+        negativity: ['#8B0000', '#FF0000'],
+        illusion: ['#4B0082', '#8A2BE2', '#9370DB'],
+        attachment: ['#800020', '#A52A2A']
+      },
+      collectibles: {
+        prana: ['#FFD700', '#FFA500'],
+        cosmic: ['#E0FFFF', '#87CEEB']
+      },
+      ui: {
+        container: 'rgba(60, 26, 43, 0.8)',
+        text: '#E6BE8A',
+        heading: '#FFD700',
+        button: ['#FF8C00', '#8B4513'],
+        pranaBar: ['#8B0000', '#FFD700']
+      }
+    },
+    cosmic: {
+      name: 'Cosmic',
+      background: ['#0A0A2A', '#000033'],
+      playerPetals: ['#00BFFF', '#1E90FF'],
+      playerCenter: '#E0FFFF',
+      stars: ['#FFFFFF', '#00FFFF', '#87CEFA'],
+      obstacles: {
+        negativity: ['#FF4500', '#FF6347'],
+        illusion: ['#9400D3', '#9932CC', '#BA55D3'],
+        attachment: ['#8B008B', '#9932CC']
+      },
+      collectibles: {
+        prana: ['#00FFFF', '#00CED1'],
+        cosmic: ['#F0F8FF', '#B0E0E6']
+      },
+      ui: {
+        container: 'rgba(25, 25, 112, 0.8)',
+        text: '#B0E0E6',
+        heading: '#00FFFF',
+        button: ['#1E90FF', '#4169E1'],
+        pranaBar: ['#0000CD', '#00BFFF']
+      }
+    },
+    forest: {
+      name: 'Forest',
+      background: ['#0A1F0A', '#001F00'],
+      playerPetals: ['#98FB98', '#90EE90'],
+      playerCenter: '#FFFF00',
+      stars: ['#FFFFFF', '#F0FFF0', '#7FFF00'],
+      obstacles: {
+        negativity: ['#8B4513', '#A0522D'],
+        illusion: ['#228B22', '#3CB371', '#2E8B57'],
+        attachment: ['#556B2F', '#6B8E23']
+      },
+      collectibles: {
+        prana: ['#7FFF00', '#32CD32'],
+        cosmic: ['#F5FFFA', '#98FB98']
+      },
+      ui: {
+        container: 'rgba(34, 85, 34, 0.8)',
+        text: '#F0FFF0',
+        heading: '#7FFF00',
+        button: ['#32CD32', '#006400'],
+        pranaBar: ['#006400', '#7FFF00']
+      }
+    },
+    sunset: {
+      name: 'Sunset',
+      background: ['#4A1C24', '#000000'],
+      playerPetals: ['#FFA07A', '#FF7F50'],
+      playerCenter: '#FFFF00',
+      stars: ['#FFFFFF', '#FFFACD', '#FFD700'],
+      obstacles: {
+        negativity: ['#8B0000', '#A52A2A'],
+        illusion: ['#FF6347', '#FF7F50', '#FA8072'],
+        attachment: ['#CD5C5C', '#F08080']
+      },
+      collectibles: {
+        prana: ['#FFD700', '#FFA500'],
+        cosmic: ['#FFFAF0', '#FFDAB9']
+      },
+      ui: {
+        container: 'rgba(139, 69, 19, 0.8)',
+        text: '#FFE4B5',
+        heading: '#FFD700',
+        button: ['#FF8C00', '#CD853F'],
+        pranaBar: ['#B22222', '#FFD700']
+      }
+    }
+  };
+  
+  // Current theme
+  let currentTheme = 'spiritual';
+  
+  // Theme changing functionality
+  function applyTheme(themeName) {
+    currentTheme = themeName;
+    const theme = colorThemes[themeName];
+    
+    // Update CSS variables for UI elements
+    document.documentElement.style.setProperty('--bg-color', theme.background[0]);
+    document.documentElement.style.setProperty('--container-bg', theme.ui.container);
+    document.documentElement.style.setProperty('--text-color', theme.ui.text);
+    document.documentElement.style.setProperty('--heading-color', theme.ui.heading);
+    document.documentElement.style.setProperty('--button-start', theme.ui.button[0]);
+    document.documentElement.style.setProperty('--button-end', theme.ui.button[1]);
+    document.documentElement.style.setProperty('--prana-start', theme.ui.pranaBar[0]);
+    document.documentElement.style.setProperty('--prana-end', theme.ui.pranaBar[1]);
+    
+    // Update CSS classes
+    document.body.className = `theme-${themeName}`;
+    
+    // Save theme preference to local storage
+    localStorage.setItem('antarikshTheme', themeName);
+  }
+  
+  // Update obstacle and collectible colors based on current theme
+  function getObstacleColor(obstacleType) {
+    const theme = colorThemes[currentTheme];
+    switch(obstacleType) {
+      case 'negativity':
+        return theme.obstacles.negativity[0];
+      case 'illusion':
+      case 'illusion-diamond':
+      case 'illusion-star':
+      case 'cosmic-whirl':
+        return theme.obstacles.illusion[0];
+      case 'attachment':
+        return theme.obstacles.attachment[0];
+      default:
+        return '#FF0000';
+    }
+  }
+  
+  function getCollectibleColor(collectibleType) {
+    const theme = colorThemes[currentTheme];
+    switch(collectibleType) {
+      case 'prana':
+      case 'super-lotus':
+        return theme.collectibles.prana[0];
+      case 'wisdom':
+        return theme.collectibles.prana[1];
+      case 'protection':
+        return theme.collectibles.prana[0];
+      case 'sacred-flame':
+        return theme.collectibles.prana[0];
+      case 'cosmic-blessing':
+        return theme.collectibles.cosmic[0];
+      default:
+        return '#FFFFFF';
+    }
+  }
+  
+  // Updated create stars for theme support
   function createStars() {
     stars = []; // Clear existing stars
+    const theme = colorThemes[currentTheme];
+    
     for (let i = 0; i < 100; i++) {
       stars.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
         size: Math.random() * 3,
-        speed: 0.5 + Math.random() * 1.5
+        speed: 0.5 + Math.random() * 1.5,
+        color: theme.stars[Math.floor(Math.random() * theme.stars.length)]
       });
     }
   }
   
-  // Update and draw stars
+  // Update and draw stars - modified for theme support
   function updateAndDrawStars(deltaTime) {
-    // Draw cosmic background
+    // Draw cosmic background with theme colors
+    const theme = colorThemes[currentTheme];
+    
     const gradient = ctx.createRadialGradient(
       canvas.width/2, canvas.height/2, 0,
       canvas.width/2, canvas.height/2, canvas.width
     );
-    gradient.addColorStop(0, '#1A0A14');
-    gradient.addColorStop(1, '#000000');
+    gradient.addColorStop(0, theme.background[0]);
+    gradient.addColorStop(1, theme.background[1] || '#000000');
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
@@ -204,14 +367,14 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       // Draw star
-      ctx.fillStyle = i % 5 === 0 ? '#FFD700' : i % 3 === 0 ? '#E6BE8A' : 'white';
+      ctx.fillStyle = i % 5 === 0 ? star.color : i % 3 === 0 ? '#E6BE8A' : 'white';
       ctx.beginPath();
       ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
       ctx.fill();
     }
   }
   
-  // Create obstacle types
+  // Create obstacle types - expanded with more varieties
   const obstacleTypes = [
     { 
       name: 'negativity',
@@ -236,10 +399,35 @@ document.addEventListener('DOMContentLoaded', () => {
       color: '#800020',
       damage: 40,
       points: 20
+    },
+    // New varieties
+    { 
+      name: 'illusion-diamond',
+      width: 55, 
+      height: 55, 
+      color: '#8A2BE2', // Blueviolet
+      damage: 0,
+      points: 25
+    },
+    { 
+      name: 'illusion-star',
+      width: 65, 
+      height: 65, 
+      color: '#9370DB', // Medium purple
+      damage: 0,
+      points: 30
+    },
+    { 
+      name: 'cosmic-whirl',
+      width: 70, 
+      height: 70, 
+      color: '#483D8B', // Dark slate blue
+      damage: 0,
+      points: 40
     }
   ];
   
-  // Create collectible types
+  // Create collectible types - expanded with more varieties
   const collectibleTypes = [
     { 
       name: 'prana',
@@ -265,6 +453,32 @@ document.addEventListener('DOMContentLoaded', () => {
       value: 0,
       points: 100,
       effect: 'shield'
+    },
+    // New varieties
+    { 
+      name: 'super-lotus',
+      width: 35, 
+      height: 35, 
+      color: '#FFA07A', // Light salmon
+      value: 40,
+      points: 125
+    },
+    { 
+      name: 'sacred-flame',
+      width: 30, 
+      height: 40, 
+      color: '#FF8C00', // Dark orange
+      value: 35,
+      points: 150
+    },
+    { 
+      name: 'cosmic-blessing',
+      width: 45, 
+      height: 45, 
+      color: '#E0FFFF', // Light cyan
+      value: 50,
+      points: 200,
+      effect: 'blissField'
     }
   ];
   
@@ -504,7 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  // Update and draw obstacles
+  // Update and draw obstacles - adding rendering for new varieties
   function updateAndDrawObstacles(deltaTime) {
     for (let i = obstacles.length - 1; i >= 0; i--) {
       const obstacle = obstacles[i];
@@ -518,31 +732,352 @@ document.addEventListener('DOMContentLoaded', () => {
         continue;
       }
       
-      // Draw obstacle
-      ctx.fillStyle = obstacle.color;
-      ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+      // Draw obstacle based on type
+      const centerX = obstacle.x + obstacle.width/2;
+      const centerY = obstacle.y + obstacle.height/2;
       
-      // Add a glow effect
+      // Draw base glow effect
       const gradient = ctx.createRadialGradient(
-        obstacle.x + obstacle.width/2, 
-        obstacle.y + obstacle.height/2, 
-        0,
-        obstacle.x + obstacle.width/2, 
-        obstacle.y + obstacle.height/2, 
-        obstacle.width
+        centerX, centerY, 0,
+        centerX, centerY, obstacle.width
       );
       gradient.addColorStop(0, obstacle.color);
       gradient.addColorStop(1, 'rgba(0,0,0,0)');
       
       ctx.fillStyle = gradient;
-      ctx.globalAlpha = 0.3;
-      ctx.fillRect(
-        obstacle.x - obstacle.width/2, 
-        obstacle.y - obstacle.height/2, 
-        obstacle.width * 2, 
-        obstacle.height * 2
-      );
+      ctx.globalAlpha = 0.6;
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, obstacle.width * 0.8, 0, Math.PI * 2);
+      ctx.fill();
       ctx.globalAlpha = 1;
+      
+      // Draw specific obstacle type
+      if (obstacle.name === 'negativity') {
+        // Replace the ugly face with a more attractive dark crystal design
+        const time = Date.now() / 500;
+        
+        // Base crystal shape with pulsing effect
+        ctx.fillStyle = '#8B0000'; // Dark red
+        const pulseSize = 0.8 + Math.sin(time) * 0.1;
+        
+        // Create spiky crystal formation
+        for (let j = 0; j < 8; j++) {
+          const angle = (j / 8) * Math.PI * 2;
+          const spikeLength = obstacle.width * (0.3 + Math.sin(time + j) * 0.1);
+          
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          ctx.lineTo(
+            centerX + Math.cos(angle) * spikeLength,
+            centerY + Math.sin(angle) * spikeLength
+          );
+          ctx.lineTo(
+            centerX + Math.cos(angle + 0.2) * (spikeLength * 0.7),
+            centerY + Math.sin(angle + 0.2) * (spikeLength * 0.7)
+          );
+          ctx.closePath();
+          ctx.fill();
+        }
+        
+        // Dark core with pulsing glow
+        const innerGradient = ctx.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, obstacle.width * 0.3 * pulseSize
+        );
+        innerGradient.addColorStop(0, '#FF0000'); // Red center
+        innerGradient.addColorStop(0.5, '#8B0000'); // Dark red
+        innerGradient.addColorStop(1, 'rgba(0,0,0,0.5)'); // Transparent black
+        
+        ctx.fillStyle = innerGradient;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, obstacle.width * 0.3 * pulseSize, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Add dark energy wisps
+        ctx.strokeStyle = 'rgba(139, 0, 0, 0.7)';
+        ctx.lineWidth = 1;
+        
+        for (let j = 0; j < 12; j++) {
+          const angle = time + (j / 12) * Math.PI * 2;
+          const length = obstacle.width * (0.3 + Math.random() * 0.2);
+          
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          
+          // Curved energy wisp
+          ctx.bezierCurveTo(
+            centerX + Math.cos(angle) * length * 0.5,
+            centerY + Math.sin(angle) * length * 0.5,
+            centerX + Math.cos(angle + 0.3) * length * 0.7,
+            centerY + Math.sin(angle + 0.3) * length * 0.7,
+            centerX + Math.cos(angle) * length,
+            centerY + Math.sin(angle) * length
+          );
+          
+          ctx.stroke();
+        }
+      }
+      else if (obstacle.name === 'illusion') {
+        // Draw as a mysterious shifting pattern
+        const time = Date.now() / 1000;
+        
+        // Outer ring
+        ctx.strokeStyle = '#4B0082';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, obstacle.width * 0.4, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // Inner shifting pattern
+        ctx.strokeStyle = '#8A2BE2';
+        ctx.lineWidth = 2;
+        
+        for (let j = 0; j < 6; j++) {
+          const angle = time + (j / 6) * Math.PI * 2;
+          const innerX = centerX + Math.cos(angle) * obstacle.width * 0.2;
+          const innerY = centerY + Math.sin(angle) * obstacle.width * 0.2;
+          
+          ctx.beginPath();
+          ctx.arc(innerX, innerY, obstacle.width * 0.1, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        
+        // Distortion lines
+        ctx.strokeStyle = '#9370DB';
+        ctx.lineWidth = 1;
+        
+        for (let j = 0; j < 12; j++) {
+          const angle = (j / 12) * Math.PI * 2;
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          ctx.lineTo(
+            centerX + Math.cos(angle) * obstacle.width * 0.5, 
+            centerY + Math.sin(angle) * obstacle.width * 0.5
+          );
+          ctx.stroke();
+        }
+      }
+      else if (obstacle.name === 'attachment') {
+        // Draw as clinging chains
+        ctx.fillStyle = '#800020';
+        
+        // Central sphere
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, obstacle.width * 0.25, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Chains/tentacles
+        ctx.lineWidth = 3;
+        ctx.strokeStyle = '#800020';
+        
+        for (let j = 0; j < 6; j++) {
+          const angle = (j / 6) * Math.PI * 2;
+          const chainLength = obstacle.width * 0.4;
+          
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          
+          // Draw a wavy line
+          for (let k = 0; k < 5; k++) {
+            const segment = (k + 1) / 5;
+            const waveOffset = Math.sin(Date.now() / 200 + j) * obstacle.width * 0.05;
+            
+            ctx.lineTo(
+              centerX + Math.cos(angle) * chainLength * segment + waveOffset,
+              centerY + Math.sin(angle) * chainLength * segment + waveOffset
+            );
+          }
+          
+          ctx.stroke();
+          
+          // Add a small ball at the end of each chain
+          ctx.beginPath();
+          ctx.arc(
+            centerX + Math.cos(angle) * chainLength + Math.sin(Date.now() / 200 + j) * obstacle.width * 0.05,
+            centerY + Math.sin(angle) * chainLength + Math.sin(Date.now() / 200 + j) * obstacle.width * 0.05,
+            obstacle.width * 0.08,
+            0, Math.PI * 2
+          );
+          ctx.fill();
+        }
+      }
+      else if (obstacle.name === 'illusion-diamond') {
+        // New diamond-shaped illusion
+        const time = Date.now() / 800;
+        
+        // Rotating diamond shapes
+        ctx.strokeStyle = '#9370DB'; // Medium purple
+        ctx.lineWidth = 2;
+        
+        for (let j = 0; j < 3; j++) {
+          const size = 0.25 + j * 0.15;
+          const rotation = time + (j * Math.PI / 4);
+          
+          ctx.save();
+          ctx.translate(centerX, centerY);
+          ctx.rotate(rotation);
+          
+          // Draw diamond
+          ctx.beginPath();
+          ctx.moveTo(0, -obstacle.width * size);
+          ctx.lineTo(obstacle.width * size, 0);
+          ctx.lineTo(0, obstacle.width * size);
+          ctx.lineTo(-obstacle.width * size, 0);
+          ctx.closePath();
+          ctx.stroke();
+          ctx.restore();
+        }
+        
+        // Pulsing central orb
+        const pulseSize = 0.15 + Math.sin(time * 2) * 0.05;
+        const innerGradient = ctx.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, obstacle.width * pulseSize
+        );
+        innerGradient.addColorStop(0, '#9932CC'); // Dark orchid
+        innerGradient.addColorStop(1, '#4B0082'); // Indigo
+        
+        ctx.fillStyle = innerGradient;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, obstacle.width * pulseSize, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Mystical particles
+        for (let j = 0; j < 8; j++) {
+          const angle = time + (j / 8) * Math.PI * 2;
+          const particleX = centerX + Math.cos(angle) * obstacle.width * 0.35;
+          const particleY = centerY + Math.sin(angle) * obstacle.width * 0.35;
+          
+          ctx.fillStyle = '#E6E6FA'; // Lavender
+          ctx.beginPath();
+          ctx.arc(particleX, particleY, 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      else if (obstacle.name === 'illusion-star') {
+        // New star-shaped illusion
+        const time = Date.now() / 1200;
+        
+        // Outer spinning star
+        ctx.strokeStyle = '#9370DB';
+        ctx.lineWidth = 2;
+        
+        ctx.save();
+        ctx.translate(centerX, centerY);
+        ctx.rotate(time);
+        
+        // Draw star
+        const points = 8;
+        const outerRadius = obstacle.width * 0.4;
+        const innerRadius = obstacle.width * 0.2;
+        
+        ctx.beginPath();
+        for (let j = 0; j < points * 2; j++) {
+          const radius = j % 2 === 0 ? outerRadius : innerRadius;
+          const angle = (j / (points * 2)) * Math.PI * 2;
+          
+          if (j === 0) {
+            ctx.moveTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+          } else {
+            ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+          }
+        }
+        ctx.closePath();
+        ctx.stroke();
+        ctx.restore();
+        
+        // Inner rotating elements
+        for (let j = 0; j < 3; j++) {
+          const rotSpeed = 0.5 + j * 0.3;
+          const radius = obstacle.width * 0.15;
+          
+          ctx.save();
+          ctx.translate(centerX, centerY);
+          ctx.rotate(time * rotSpeed);
+          
+          // Orbit distance
+          const orbitDistance = obstacle.width * 0.2;
+          
+          // Draw orbiting circle
+          ctx.beginPath();
+          ctx.arc(orbitDistance, 0, radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(147, 112, 219, ${0.8 - j * 0.2})`;
+          ctx.fill();
+          ctx.restore();
+        }
+        
+        // Central light
+        const pulseSize = 0.1 + Math.sin(time * 3) * 0.05;
+        ctx.fillStyle = '#E6E6FA'; // Lavender
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, obstacle.width * pulseSize, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      else if (obstacle.name === 'cosmic-whirl') {
+        // Amazing cosmic spiral portal
+        const time = Date.now() / 1000;
+        
+        // Spinning galaxy effect
+        for (let j = 0; j < 4; j++) {
+          const armWidth = 0.1 + j * 0.05;
+          const rotationOffset = j * (Math.PI / 2);
+          const gradientColors = ['#483D8B', '#7B68EE', '#9370DB', '#8A2BE2'];
+          
+          ctx.save();
+          ctx.translate(centerX, centerY);
+          
+          // Create spiral arm
+          ctx.strokeStyle = gradientColors[j % gradientColors.length];
+          ctx.lineWidth = 3;
+          
+          ctx.beginPath();
+          for (let k = 0; k < 30; k++) {
+            const t = k / 30;
+            const radius = t * obstacle.width * 0.5;
+            const angle = time * 2 + rotationOffset + t * 10;
+            
+            const x = Math.cos(angle) * radius;
+            const y = Math.sin(angle) * radius;
+            
+            if (k === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              ctx.lineTo(x, y);
+            }
+          }
+          ctx.stroke();
+          ctx.restore();
+        }
+        
+        // Swirling central vortex
+        const vortexGradient = ctx.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, obstacle.width * 0.3
+        );
+        vortexGradient.addColorStop(0, '#E6E6FA'); // Lavender
+        vortexGradient.addColorStop(0.5, '#9370DB'); // Medium purple
+        vortexGradient.addColorStop(1, '#483D8B'); // Dark slate blue
+        
+        ctx.fillStyle = vortexGradient;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, obstacle.width * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Particle effects around the vortex
+        for (let j = 0; j < 12; j++) {
+          const angle = time * 3 + (j / 12) * Math.PI * 2;
+          const distance = obstacle.width * (0.3 + Math.sin(time * 2 + j) * 0.1);
+          
+          const particleX = centerX + Math.cos(angle) * distance;
+          const particleY = centerY + Math.sin(angle) * distance;
+          const particleSize = 1 + Math.sin(time * 4 + j) * 1;
+          
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
     }
   }
   
@@ -563,7 +1098,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
   
-  // Update and draw collectibles
+  // Update and draw collectibles - adding rendering for new collectibles
   function updateAndDrawCollectibles(deltaTime) {
     for (let i = collectibles.length - 1; i >= 0; i--) {
       const collectible = collectibles[i];
@@ -577,50 +1112,101 @@ document.addEventListener('DOMContentLoaded', () => {
         continue;
       }
       
-      // Draw collectible
-      ctx.fillStyle = collectible.color;
+      const centerX = collectible.x + collectible.width/2;
+      const centerY = collectible.y + collectible.height/2;
       
       if (collectible.name === 'prana') {
-        // Draw as a lotus flower
-        const centerX = collectible.x + collectible.width/2;
-        const centerY = collectible.y + collectible.height/2;
-        const petalSize = collectible.width/3;
+        // Draw as a more elaborate lotus flower
+        const radius = collectible.width/2;
+        const petalCount = 12;
+        const innerPetalCount = 8;
+        const time = Date.now() / 1000;
         
-        // Draw petals
-        for (let j = 0; j < 8; j++) {
-          const angle = j * Math.PI / 4;
-          ctx.fillStyle = '#FFD700'; // Gold
+        // Glow effect
+        const gradient = ctx.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, radius * 1.5
+        );
+        gradient.addColorStop(0, 'rgba(255, 215, 0, 0.6)');
+        gradient.addColorStop(1, 'rgba(255, 140, 0, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius * 1.5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Outer petals
+        ctx.fillStyle = '#FFCBA4'; // Peach
+        for (let j = 0; j < petalCount; j++) {
+          const angle = (j / petalCount) * Math.PI * 2 + time * 0.2;
+          const petalLength = radius * 0.8;
+          const petalWidth = radius * 0.25;
+          
+          ctx.save();
+          ctx.translate(centerX, centerY);
+          ctx.rotate(angle);
+          
+          // Draw petal
           ctx.beginPath();
-          ctx.ellipse(
-            centerX + Math.cos(angle) * petalSize, 
-            centerY + Math.sin(angle) * petalSize, 
-            petalSize, petalSize/2, 
-            angle, 0, Math.PI * 2
-          );
+          ctx.ellipse(0, -radius/2, petalWidth, petalLength, 0, 0, Math.PI * 2);
           ctx.fill();
+          ctx.restore();
         }
         
-        // Draw center
-        ctx.fillStyle = '#FFA500'; // Orange center
+        // Inner petals
+        ctx.fillStyle = '#FFA07A'; // Light salmon
+        for (let j = 0; j < innerPetalCount; j++) {
+          const angle = (j / innerPetalCount) * Math.PI * 2 + time * 0.1 + Math.PI/innerPetalCount;
+          const petalLength = radius * 0.6;
+          const petalWidth = radius * 0.15;
+          
+          ctx.save();
+          ctx.translate(centerX, centerY);
+          ctx.rotate(angle);
+          
+          // Draw petal
+          ctx.beginPath();
+          ctx.ellipse(0, -radius/3, petalWidth, petalLength, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+        
+        // Center
+        ctx.fillStyle = '#FFD700'; // Gold
         ctx.beginPath();
-        ctx.arc(centerX, centerY, petalSize/2, 0, Math.PI * 2);
+        ctx.arc(centerX, centerY, radius * 0.3, 0, Math.PI * 2);
         ctx.fill();
+        
+        // Center details
+        ctx.fillStyle = '#FF8C00'; // Dark orange
+        for (let j = 0; j < 6; j++) {
+          const angle = (j / 6) * Math.PI * 2;
+          const dotX = centerX + Math.cos(angle) * radius * 0.15;
+          const dotY = centerY + Math.sin(angle) * radius * 0.15;
+          
+          ctx.beginPath();
+          ctx.arc(dotX, dotY, radius * 0.05, 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
       else if (collectible.name === 'wisdom') {
-        // Draw as a scroll
-        ctx.fillRect(
-          collectible.x,
-          collectible.y + collectible.height/4,
-          collectible.width,
-          collectible.height/2
-        );
+        // Draw as an ancient glowing scroll with Sanskrit symbols
+        const width = collectible.width;
+        const height = collectible.height;
         
-        // Draw scroll ends
+        // Scroll paper
+        ctx.fillStyle = '#F5DEB3'; // Wheat color
+        ctx.beginPath();
+        ctx.roundRect(collectible.x, collectible.y + height/4, width, height/2, [5]);
+        ctx.fill();
+        
+        // Scroll rollers
+        ctx.fillStyle = '#8B4513'; // SaddleBrown
         ctx.beginPath();
         ctx.arc(
           collectible.x,
-          collectible.y + collectible.height/2,
-          collectible.height/4,
+          collectible.y + height/2,
+          height/4,
           Math.PI/2, -Math.PI/2,
           true
         );
@@ -628,32 +1214,386 @@ document.addEventListener('DOMContentLoaded', () => {
         
         ctx.beginPath();
         ctx.arc(
-          collectible.x + collectible.width,
-          collectible.y + collectible.height/2,
-          collectible.height/4,
+          collectible.x + width,
+          collectible.y + height/2,
+          height/4,
           -Math.PI/2, Math.PI/2,
           true
         );
         ctx.fill();
-      }
-      else {
-        // Draw as a yantra (protection symbol)
-        const centerX = collectible.x + collectible.width/2;
-        const centerY = collectible.y + collectible.height/2;
-        const radius = collectible.width/2;
         
-        // Draw outer circle
+        // Ancient writing (simplified Sanskrit-like symbols)
+        ctx.fillStyle = '#800000'; // Maroon
+        ctx.font = `${height/3}px Arial`;
+        ctx.fillText('ॐ', collectible.x + width/2 - height/6, collectible.y + height/2 + height/10);
+        
+        // Glow effect
+        const gradient = ctx.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, width
+        );
+        gradient.addColorStop(0, 'rgba(255, 223, 0, 0.3)');
+        gradient.addColorStop(1, 'rgba(255, 223, 0, 0)');
+        
+        ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.arc(centerX, centerY, width, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      else if (collectible.name === 'protection') {
+        // Draw as an elaborate yantra (sacred geometry)
+        const radius = collectible.width/2;
+        const time = Date.now() / 2000;
+        
+        // Background glow
+        const gradient = ctx.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, radius * 2
+        );
+        gradient.addColorStop(0, 'rgba(255, 215, 0, 0.5)');
+        gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius * 2, 0, Math.PI * 2);
         ctx.fill();
         
-        // Draw inner triangle
-        ctx.fillStyle = '#800000'; // Maroon
+        // Outer circle
+        ctx.strokeStyle = '#C2B280';
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.moveTo(centerX, centerY - radius * 0.7);
-        ctx.lineTo(centerX - radius * 0.6, centerY + radius * 0.4);
-        ctx.lineTo(centerX + radius * 0.6, centerY + radius * 0.4);
+        ctx.arc(centerX, centerY, radius * 0.9, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // Middle circle with rotating effect
+        ctx.strokeStyle = '#D4AF37';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius * 0.7, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // Inner triangles (Sri Yantra style)
+        ctx.strokeStyle = '#B8860B';
+        ctx.lineWidth = 1.5;
+        
+        // Downward triangle
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY - radius * 0.5);
+        ctx.lineTo(centerX - radius * 0.4, centerY + radius * 0.2);
+        ctx.lineTo(centerX + radius * 0.4, centerY + radius * 0.2);
         ctx.closePath();
+        ctx.stroke();
+        
+        // Upward triangle
+        ctx.beginPath();
+        ctx.moveTo(centerX, centerY + radius * 0.5);
+        ctx.lineTo(centerX - radius * 0.4, centerY - radius * 0.2);
+        ctx.lineTo(centerX + radius * 0.4, centerY - radius * 0.2);
+        ctx.closePath();
+        ctx.stroke();
+        
+        // Central dot (bindu)
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius * 0.1, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Rotating outer dots
+        for (let j = 0; j < 8; j++) {
+          const angle = time + (j / 8) * Math.PI * 2;
+          const dotX = centerX + Math.cos(angle) * radius * 0.6;
+          const dotY = centerY + Math.sin(angle) * radius * 0.6;
+          
+          ctx.beginPath();
+          ctx.arc(dotX, dotY, radius * 0.08, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      else if (collectible.name === 'super-lotus') {
+        // Enhanced super lotus with extra effects
+        const radius = collectible.width/2;
+        const petalCount = 16; // More petals
+        const innerPetalCount = 12; // More inner petals
+        const time = Date.now() / 800; // Faster animation
+        
+        // Enhanced glow effect
+        const gradient = ctx.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, radius * 2
+        );
+        gradient.addColorStop(0, 'rgba(255, 215, 0, 0.8)');
+        gradient.addColorStop(0.5, 'rgba(255, 165, 0, 0.5)');
+        gradient.addColorStop(1, 'rgba(255, 140, 0, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius * 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Outer petals with gradient colors
+        for (let j = 0; j < petalCount; j++) {
+          const angle = (j / petalCount) * Math.PI * 2 + time * 0.3;
+          const petalLength = radius * (0.8 + Math.sin(time + j) * 0.1);
+          const petalWidth = radius * 0.2;
+          
+          // Create gradient for petal
+          const petalGradient = ctx.createLinearGradient(
+            centerX, centerY,
+            centerX + Math.cos(angle) * petalLength,
+            centerY + Math.sin(angle) * petalLength
+          );
+          petalGradient.addColorStop(0, '#FFA07A'); // Light salmon
+          petalGradient.addColorStop(1, '#FF8C00'); // Dark orange
+          
+          ctx.save();
+          ctx.translate(centerX, centerY);
+          ctx.rotate(angle);
+          
+          // Draw petal
+          ctx.fillStyle = petalGradient;
+          ctx.beginPath();
+          ctx.ellipse(0, -radius/2, petalWidth, petalLength, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+        
+        // Middle layer petals with more vivid color
+        for (let j = 0; j < innerPetalCount; j++) {
+          const angle = (j / innerPetalCount) * Math.PI * 2 + time * 0.2 + Math.PI/innerPetalCount;
+          const petalLength = radius * 0.6;
+          const petalWidth = radius * 0.15;
+          
+          ctx.save();
+          ctx.translate(centerX, centerY);
+          ctx.rotate(angle);
+          
+          // Draw petal
+          ctx.fillStyle = '#FF7F50'; // Coral
+          ctx.beginPath();
+          ctx.ellipse(0, -radius/3, petalWidth, petalLength, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+        
+        // Center with gem-like appearance
+        const centerGradient = ctx.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, radius * 0.3
+        );
+        centerGradient.addColorStop(0, 'white');
+        centerGradient.addColorStop(0.5, '#FFD700');
+        centerGradient.addColorStop(1, '#FF8C00');
+        
+        ctx.fillStyle = centerGradient;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Sparkle effects
+        for (let j = 0; j < 4; j++) {
+          const sparkAngle = time * 2 + (j * Math.PI/2);
+          const sparkX = centerX + Math.cos(sparkAngle) * radius * 0.6;
+          const sparkY = centerY + Math.sin(sparkAngle) * radius * 0.6;
+          
+          ctx.strokeStyle = 'white';
+          ctx.lineWidth = 1;
+          
+          // Draw sparkle
+          ctx.beginPath();
+          ctx.moveTo(sparkX - 3, sparkY);
+          ctx.lineTo(sparkX + 3, sparkY);
+          ctx.moveTo(sparkX, sparkY - 3);
+          ctx.lineTo(sparkX, sparkY + 3);
+          ctx.stroke();
+        }
+      }
+      else if (collectible.name === 'sacred-flame') {
+        // Sacred flame collectible
+        const radius = collectible.width/2;
+        const time = Date.now() / 200; // Fast animation
+        
+        // Flame base glow
+        const gradient = ctx.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, radius * 2
+        );
+        gradient.addColorStop(0, 'rgba(255, 215, 0, 0.8)');
+        gradient.addColorStop(0.5, 'rgba(255, 140, 0, 0.6)');
+        gradient.addColorStop(1, 'rgba(255, 69, 0, 0)');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius * 1.8, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Animated flame
+        for (let j = 0; j < 5; j++) {
+          // Create differently colored flames from inside out
+          const colors = ['#FFFFFF', '#FFFF00', '#FFD700', '#FFA500', '#FF4500'];
+          ctx.fillStyle = colors[j];
+          
+          ctx.beginPath();
+          ctx.moveTo(centerX - radius * 0.3, centerY + radius * 0.4); // Left base
+          
+          // Control points for the curves - with animation
+          const waveOffset = Math.sin(time + j) * radius * 0.1;
+          const heightOffset = Math.cos(time * 0.7 + j) * radius * 0.1;
+          
+          // Left side of flame
+          ctx.bezierCurveTo(
+            centerX - radius * 0.4, centerY, // Control point 1
+            centerX - radius * (0.3 - j*0.05) + waveOffset, centerY - radius * (0.5 + j*0.1), // Control point 2
+            centerX, centerY - radius * (0.7 + j*0.15) + heightOffset // Top of flame
+          );
+          
+          // Right side of flame
+          ctx.bezierCurveTo(
+            centerX + radius * (0.3 - j*0.05) - waveOffset, centerY - radius * (0.5 + j*0.1), // Control point 3
+            centerX + radius * 0.4, centerY, // Control point 4
+            centerX + radius * 0.3, centerY + radius * 0.4 // Right base
+          );
+          
+          ctx.closePath();
+          ctx.fill();
+        }
+        
+        // Base of the flame
+        const baseGradient = ctx.createLinearGradient(
+          centerX, centerY + radius * 0.4,
+          centerX, centerY + radius * 0.6
+        );
+        baseGradient.addColorStop(0, '#FFA500');
+        baseGradient.addColorStop(1, '#8B4513');
+        
+        ctx.fillStyle = baseGradient;
+        ctx.beginPath();
+        ctx.ellipse(centerX, centerY + radius * 0.5, radius * 0.4, radius * 0.2, 0, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Sparkles around the flame
+        ctx.fillStyle = 'white';
+        for (let j = 0; j < 6; j++) {
+          const sparkAngle = time * 2 + (j * Math.PI/3);
+          const distance = radius * (0.8 + Math.sin(time + j) * 0.2);
+          const sparkX = centerX + Math.cos(sparkAngle) * distance;
+          const sparkY = centerY + Math.sin(sparkAngle) * distance;
+          
+          // Tiny star shape
+          const sparkSize = 1 + Math.random();
+          ctx.beginPath();
+          ctx.arc(sparkX, sparkY, sparkSize, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+      else if (collectible.name === 'cosmic-blessing') {
+        // Cosmic blessing - a beautiful mandala pattern
+        const radius = collectible.width/2;
+        const time = Date.now() / 1500;
+        
+        // Ethereal glow
+        const gradient = ctx.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, radius * 2.5
+        );
+        gradient.addColorStop(0, 'rgba(224, 255, 255, 0.9)'); // Light cyan
+        gradient.addColorStop(0.4, 'rgba(173, 216, 230, 0.6)'); // Light blue
+        gradient.addColorStop(0.7, 'rgba(135, 206, 235, 0.3)'); // Sky blue
+        gradient.addColorStop(1, 'rgba(135, 206, 250, 0)'); // Light sky blue
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius * 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Mandala patterns - multiple rotating layers
+        for (let layer = 0; layer < 4; layer++) {
+          const layerPoints = 8 + layer * 4;
+          const rotation = time * (layer % 2 === 0 ? 1 : -1) * 0.5;
+          const layerRadius = radius * (0.4 + layer * 0.15);
+          
+          ctx.save();
+          ctx.translate(centerX, centerY);
+          ctx.rotate(rotation);
+          
+          // Draw points around the circle
+          for (let j = 0; j < layerPoints; j++) {
+            const angle = (j / layerPoints) * Math.PI * 2;
+            const x = Math.cos(angle) * layerRadius;
+            const y = Math.sin(angle) * layerRadius;
+            
+            // Draw a petal or geometric shape from center to point
+            ctx.beginPath();
+            
+            // Different patterns for different layers
+            if (layer === 0) {
+              // Inner layer: simple small circles
+              ctx.arc(x, y, radius * 0.05, 0, Math.PI * 2);
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+              ctx.fill();
+            } else if (layer === 1) {
+              // Second layer: connecting lines
+              if (j % 2 === 0) {
+                ctx.moveTo(0, 0);
+                ctx.lineTo(x, y);
+                ctx.strokeStyle = 'rgba(200, 255, 255, 0.7)';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+              }
+            } else if (layer === 2) {
+              // Third layer: triangular petals
+              const nextAngle = ((j + 1) / layerPoints) * Math.PI * 2;
+              ctx.moveTo(0, 0);
+              ctx.lineTo(x, y);
+              ctx.lineTo(Math.cos(nextAngle) * layerRadius, Math.sin(nextAngle) * layerRadius);
+              ctx.closePath();
+              ctx.fillStyle = 'rgba(173, 216, 230, 0.5)';
+              ctx.fill();
+            } else if (layer === 3) {
+              // Outer layer: diamond shapes
+              const midRadius = layerRadius * 0.7;
+              const midX = Math.cos(angle) * midRadius;
+              const midY = Math.sin(angle) * midRadius;
+              
+              const nextAngle = ((j + 1) / layerPoints) * Math.PI * 2;
+              const nextMidX = Math.cos(nextAngle) * midRadius;
+              const nextMidY = Math.sin(nextAngle) * midRadius;
+              
+              ctx.moveTo(x, y);
+              ctx.lineTo(midX, midY);
+              ctx.lineTo(Math.cos(nextAngle) * layerRadius, Math.sin(nextAngle) * layerRadius);
+              ctx.lineTo(nextMidX, nextMidY);
+              ctx.closePath();
+              
+              ctx.fillStyle = 'rgba(135, 206, 250, 0.3)';
+              ctx.fill();
+              ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+              ctx.lineWidth = 1;
+              ctx.stroke();
+            }
+          }
+          
+          ctx.restore();
+        }
+        
+        // Central light orb
+        const centralGlow = ctx.createRadialGradient(
+          centerX, centerY, 0,
+          centerX, centerY, radius * 0.3
+        );
+        centralGlow.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        centralGlow.addColorStop(0.5, 'rgba(200, 255, 255, 0.8)');
+        centralGlow.addColorStop(1, 'rgba(173, 216, 230, 0.5)');
+        
+        ctx.fillStyle = centralGlow;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Add pulsing effect to center
+        const pulseSize = 0.1 + Math.sin(time * 3) * 0.05;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius * pulseSize, 0, Math.PI * 2);
         ctx.fill();
       }
     }
@@ -677,15 +1617,26 @@ document.addEventListener('DOMContentLoaded', () => {
         // Create explosion particles
         createExplosionParticles(obstacle.x + obstacle.width/2, obstacle.y + obstacle.height/2);
         
-        // Reduce prana
-        reducePrana(obstacle.damage);
+        // Only negativity (red crystals) reduce prana
+        if (obstacle.name === 'negativity') {
+          // Reduce prana
+          reducePrana(obstacle.damage);
+          
+          // Show damage message
+          showMessage(`-${obstacle.damage} Prana!`, player.x + player.width, player.y, '#FF5555');
+        } else if (obstacle.name === 'illusion') {
+          // Illusions create visual distortion but don't hurt prana
+          player.velocityY = player.velocityY * -0.8; // Reverse player momentum slightly
+          showMessage(`Illusion!`, player.x + player.width, player.y, '#8A2BE2');
+        } else if (obstacle.name === 'attachment') {
+          // Attachments slow player down temporarily
+          player.velocityY = player.velocityY * 0.5; // Slow down player
+          showMessage(`Attachment!`, player.x + player.width, player.y, '#800020');
+        }
         
-        // Add score
+        // Add score for all obstacles
         score += obstacle.points;
         document.getElementById('score').textContent = Math.floor(score);
-        
-        // Show message
-        showMessage(`-${obstacle.damage} Prana!`, player.x + player.width, player.y, '#FF5555');
       }
     }
     
@@ -1164,6 +2115,28 @@ document.addEventListener('DOMContentLoaded', () => {
       bgMusic.play().catch(e => console.log("Couldn't play audio: ", e));
     }
     
+    // Try to load saved theme
+    const savedTheme = localStorage.getItem('antarikshTheme');
+    if (savedTheme && colorThemes[savedTheme]) {
+      currentTheme = savedTheme;
+    }
+    
+    // Set up theme selector
+    const themeSelector = document.getElementById('themeSelect');
+    if (themeSelector) {
+      themeSelector.value = currentTheme;
+      
+      // Apply initial theme
+      applyTheme(currentTheme);
+      
+      // Set up theme change event
+      themeSelector.addEventListener('change', function() {
+        applyTheme(this.value);
+        // Recreate stars with new theme colors
+        createStars();
+      });
+    }
+    
     // Update the instructions text to match the SHAKTI button name
     const instructionsText = document.querySelector('.controls p');
     if (instructionsText) {
@@ -1174,6 +2147,6 @@ document.addEventListener('DOMContentLoaded', () => {
     requestAnimationFrame(gameLoop);
   }
   
-  // Start the game
+  // Start the game after defining all functions
   init();
 }); 

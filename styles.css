@@ -1,29 +1,40 @@
+:root {
+  --bg-color: #2C0A1E;
+  --container-bg: rgba(60, 26, 43, 0.8);
+  --text-color: #E6BE8A;
+  --heading-color: #FFD700;
+  --button-start: #FF8C00;
+  --button-end: #8B4513;
+  --prana-start: #8B0000;
+  --prana-end: #FFD700;
+}
+
 body {
   font-family: 'Arial', sans-serif;
-  background-color: #2C0A1E; /* Deep maroon background */
+  background-color: var(--bg-color);
   margin: 0;
   padding: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  color: #E6BE8A; /* Light gold text */
-  background-image: radial-gradient(circle, #3C1A2B 0%, #2C0A1E 100%);
+  color: var(--text-color);
+  background-image: radial-gradient(circle, var(--bg-color) 0%, #000000 100%);
 }
 
 .container {
-  background-color: rgba(60, 26, 43, 0.8); /* Transparent deep maroon */
+  background-color: var(--container-bg);
   border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7);
   padding: 20px;
   max-width: 800px;
   width: 100%;
   text-align: center;
-  border: 1px solid #8B4513; /* Saddle brown border */
+  border: 1px solid var(--button-end);
 }
 
 h1 {
-  color: #FFD700; /* Gold */
+  color: var(--heading-color);
   text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
   font-size: 28px;
   margin-bottom: 10px;
@@ -40,7 +51,7 @@ h1 {
   margin-bottom: 10px;
   font-size: 16px;
   font-weight: bold;
-  color: #E6BE8A; /* Light gold */
+  color: var(--text-color);
 }
 
 .score, .high-score, .lives {
@@ -76,21 +87,21 @@ h1 {
 .prana-bar {
   height: 100%;
   width: 100%;
-  background: linear-gradient(to right, #8B0000, #FFD700); /* Dark red to gold */
+  background: linear-gradient(to right, var(--prana-start), var(--prana-end));
   border-radius: 10px;
   transition: width 0.3s;
 }
 
 canvas {
-  border: 2px solid #8B4513; /* Saddle brown */
-  background-color: #000000; /* Black background for space */
+  border: 2px solid var(--button-end);
+  background-color: #000000;
   border-radius: 5px;
-  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3); /* Gold glow */
+  box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
 }
 
 .controls {
   margin-top: 15px;
-  color: #E6BE8A; /* Light gold */
+  color: var(--text-color);
 }
 
 .control-buttons {
@@ -100,7 +111,7 @@ canvas {
 }
 
 .meditate-btn {
-  background: linear-gradient(to bottom, #FF8C00, #8B4513); /* Saffron to brown */
+  background: linear-gradient(to bottom, var(--button-start), var(--button-end));
   color: white;
   border: none;
   border-radius: 5px;
@@ -115,29 +126,83 @@ canvas {
 }
 
 .meditate-btn:hover {
-  background: linear-gradient(to bottom, #FFA500, #A0522D); /* Orange to sienna */
+  background: linear-gradient(to bottom, var(--button-start), var(--button-end));
+  filter: brightness(1.2);
   transform: scale(1.05);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
 }
 
 .meditate-btn:active {
-  background: linear-gradient(to bottom, #8B4513, #654321); /* Brown to darker brown */
+  background: linear-gradient(to bottom, var(--button-end), var(--button-end));
   transform: scale(0.95);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 
 .online-notice {
-  background: linear-gradient(to bottom, #FFD700, #DAA520) !important; /* Gold to goldenrod */
-  color: #2C0A1E !important; /* Deep maroon */
+  background: linear-gradient(to bottom, #FFD700, #DAA520) !important;
+  color: #2C0A1E !important;
   padding: 10px;
   margin-top: 20px;
   border-radius: 5px;
   animation: pulse 2s infinite;
-  border: 1px solid #B8860B; /* Dark goldenrod */
+  border: 1px solid #B8860B;
 }
 
 @keyframes pulse {
   0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.7); }
   70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
   100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+}
+
+.sound-credit {
+  font-size: 12px;
+  margin-bottom: 15px;
+  color: #c0c0c0;
+  text-align: center;
+}
+
+.sound-credit a {
+  color: #FFD700;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.sound-credit a:hover {
+  color: #FFA500;
+  text-decoration: underline;
+}
+
+.theme-selector {
+  margin: 10px auto;
+  text-align: center;
+}
+
+.theme-selector label {
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.theme-selector select {
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--text-color);
+  border: 1px solid var(--button-end);
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.theme-selector select:hover {
+  background: rgba(0, 0, 0, 0.8);
+  border-color: #FFD700;
+}
+
+.theme-selector select:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+}
+
+.theme-selector option {
+  background-color: #2C0A1E;
 } 
