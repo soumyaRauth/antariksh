@@ -2542,13 +2542,14 @@ document.addEventListener('DOMContentLoaded', () => {
       pulsePhase: 0,
       flowPhase: 0,
       glowPhase: 0,
-      glowIntensity: 1
+      glowIntensity: 1,
+      isBoss: true
     };
     
     bossMonsters.push(bossMonster);
   }
 
-  // Function to update and draw boss monsters
+  // Enhanced function to update and draw boss monsters with a more elegant design
   function updateAndDrawBossMonsters(deltaTime) {
     if (!bossMonsters || bossMonsters.length === 0) return;
     
@@ -2559,9 +2560,9 @@ document.addEventListener('DOMContentLoaded', () => {
       boss.x += boss.velocityX * (deltaTime / 16);
       boss.y += boss.velocityY * (deltaTime / 16);
       
-      // Bounce off edges
+      // Bounce off edges with elegant easing
       if (boss.y < 0 || boss.y + boss.height > canvas.height) {
-        boss.velocityY *= -1;
+        boss.velocityY *= -0.85; // Smoother bounce with damping
         boss.y = Math.max(0, Math.min(boss.y, canvas.height - boss.height));
       }
       
@@ -2571,74 +2572,168 @@ document.addEventListener('DOMContentLoaded', () => {
         continue;
       }
       
-      // Update animation phases
+      // Update animation phases with varying speeds for more organic motion
       boss.pulsePhase += deltaTime / 300;
       boss.flowPhase = (boss.flowPhase || 0) + deltaTime / 400;
-      boss.glowPhase = (boss.glowPhase || 0) + deltaTime / 250;
+      boss.glowPhase = (boss.glowPhase || 0) + deltaTime / (250 + Math.sin(boss.pulsePhase) * 50);
+      boss.innerRotation = (boss.innerRotation || 0) + deltaTime / 1000;
       
-      // Update color cycles for a more elegant pulsing effect
+      // Update color cycles with more sophisticated transitions
       const colorPhase = Math.sin(boss.glowPhase);
-      const r = 100 + 155 * Math.abs(colorPhase);
-      const g = 20 + 50 * Math.abs(colorPhase);
-      const b = 100 + 155 * (1 - Math.abs(colorPhase));
-      boss.currentColor = `rgb(${r}, ${g}, ${b})`;
+      // More elegant color palette - deep purples to blues with hints of magenta
+      const r = 70 + 100 * Math.abs(colorPhase) + 50 * Math.sin(boss.glowPhase * 0.3);
+      const g = 20 + 40 * Math.abs(colorPhase) + 20 * Math.cos(boss.glowPhase * 0.5);
+      const b = 120 + 100 * (1 - Math.abs(colorPhase)) + 30 * Math.sin(boss.glowPhase * 0.7);
+      
+      // Use sophisticated semi-transparent colors for more elegant look
+      boss.currentColor = `rgba(${r}, ${g}, ${b}, 0.9)`;
+      boss.accentColor = `rgba(${r+50}, ${g+30}, ${b-20}, 0.7)`;
+      boss.deepColor = `rgba(${r/2}, ${g/2}, ${b}, 0.8)`;
       boss.glowIntensity = 1 + 0.7 * Math.sin(boss.glowPhase * 0.7);
       
       // Draw the boss
       ctx.save();
       
-      // Ethereal glow
+      // Main center coordinates
+      const centerX = boss.x + boss.width/2;
+      const centerY = boss.y + boss.height/2;
+      
+      // ====== BACKGROUND AURA ======
+      // Create a large outer glow first
+      const outerGlow = ctx.createRadialGradient(
+        centerX, centerY, boss.width * 0.4,
+        centerX, centerY, boss.width * 1.2
+      );
+      outerGlow.addColorStop(0, `rgba(${r}, ${g}, ${b}, 0.2)`);
+      outerGlow.addColorStop(0.5, `rgba(${r}, ${g}, ${b}, 0.1)`);
+      outerGlow.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      
+      ctx.beginPath();
+      ctx.fillStyle = outerGlow;
+      ctx.arc(centerX, centerY, boss.width * 1.2, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // ====== CORE ENTITY ======
+      // Ethereal glow effect
       ctx.shadowColor = boss.currentColor;
       ctx.shadowBlur = 40 * boss.glowIntensity;
       
-      // Main ethereal form - vertical oval shape
-      const centerX = boss.x + boss.width/2;
-      const centerY = boss.y + boss.height/2;
+      // Main ethereal form - more organic shape
       const pulseFactor = 1 + 0.1 * Math.sin(boss.pulsePhase);
       
-      // Create gradient for main body
+      // Create complex gradient for main body
       const gradient = ctx.createRadialGradient(
         centerX, centerY, 0,
         centerX, centerY, boss.width/2 * pulseFactor
       );
-      gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-      gradient.addColorStop(0.3, boss.currentColor);
-      gradient.addColorStop(0.7, `rgba(${r/2}, ${g/2}, ${b/2}, 0.8)`);
-      gradient.addColorStop(1, 'rgba(0, 0, 0, 0.5)');
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+      gradient.addColorStop(0.2, boss.accentColor);
+      gradient.addColorStop(0.5, boss.currentColor);
+      gradient.addColorStop(0.8, boss.deepColor);
+      gradient.addColorStop(1, 'rgba(10, 0, 30, 0.7)');
       
-      // Draw the elegant oval form
+      // Create an elegant, organic shape that subtly changes
       ctx.beginPath();
       ctx.fillStyle = gradient;
-      ctx.ellipse(
-        centerX, centerY,
-        boss.width/2.5 * pulseFactor, // horizontal radius
-        boss.height/1.8 * pulseFactor, // vertical radius
-        0, 0, Math.PI * 2
-      );
+      
+      // Dynamic radius based on angle for more organic look
+      const baseRadius = boss.width/2.2 * pulseFactor;
+      const vertRadius = boss.height/1.7 * pulseFactor;
+      const deformFactor = 0.08; // How much the shape deforms
+      
+      // Draw a deformed ellipse for a more organic shape
+      ctx.beginPath();
+      const segments = 36; // More segments for smoother curve
+      
+      for (let j = 0; j <= segments; j++) {
+        const angle = (j / segments) * Math.PI * 2;
+        const deform = deformFactor * Math.sin(angle * 3 + boss.flowPhase);
+        const radiusX = baseRadius * (1 + deform);
+        const radiusY = vertRadius * (1 + deform * 0.7);
+        
+        const x = centerX + Math.cos(angle) * radiusX;
+        const y = centerY + Math.sin(angle) * radiusY;
+        
+        if (j === 0) {
+          ctx.moveTo(x, y);
+        } else {
+          ctx.lineTo(x, y);
+        }
+      }
+      
+      ctx.closePath();
       ctx.fill();
       
-      // Draw swirling energy tendrils
+      // ====== INNER STRUCTURE ======
+      // Inner essence - a more sophisticated core with rotation
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(boss.innerRotation);
+      
+      // Create a stylized inner pattern
+      for (let j = 0; j < 3; j++) {
+        const rotation = (Math.PI * 2 / 3) * j + boss.innerRotation;
+        const innerRadius = boss.width * 0.25;
+        const outerRadius = boss.width * 0.35;
+        
+        // Create accent shapes
+        ctx.beginPath();
+        ctx.fillStyle = boss.accentColor;
+        
+        // Create curved triangular shapes
+        ctx.moveTo(0, 0);
+        
+        // Control points for bezier curve
+        const cp1x = Math.cos(rotation - 0.3) * innerRadius * 1.2;
+        const cp1y = Math.sin(rotation - 0.3) * innerRadius * 1.2;
+        const cp2x = Math.cos(rotation + 0.3) * innerRadius * 1.2;
+        const cp2y = Math.sin(rotation + 0.3) * innerRadius * 1.2;
+        
+        // End point
+        const endX = Math.cos(rotation) * outerRadius;
+        const endY = Math.sin(rotation) * outerRadius;
+        
+        ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, endX, endY);
+        ctx.bezierCurveTo(cp2x * 0.8, cp2y * 0.8, cp1x * 0.8, cp1y * 0.8, 0, 0);
+        ctx.fill();
+        
+        // Add highlights
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 2;
+        ctx.moveTo(0, 0);
+        ctx.lineTo(endX * 0.7, endY * 0.7);
+        ctx.stroke();
+      }
+      
+      ctx.restore();
+      
+      // ====== ENERGY TENDRILS ======
+      // Draw more elegant, flowing energy tendrils
       const tendrilCount = 12;
       for (let j = 0; j < tendrilCount; j++) {
         const baseAngle = (j / tendrilCount) * Math.PI * 2;
         const flowOffset = boss.flowPhase + (j / tendrilCount) * Math.PI * 2;
         
-        // Each tendril is a flowing curve
+        // Each tendril is a flowing curve with varying opacity and width
         ctx.beginPath();
         ctx.strokeStyle = boss.currentColor;
-        ctx.lineWidth = 4;
+        ctx.lineWidth = 2 + 2 * Math.sin(flowOffset + boss.pulsePhase);
         ctx.shadowBlur = 15;
         ctx.shadowColor = boss.currentColor;
         
-        // Create flowing curve paths
+        // Create flowing curve paths with more sophisticated control points
         const curve = [];
-        const segments = 15;
-        const length = boss.width * (0.8 + 0.3 * Math.sin(boss.pulsePhase + j * 0.5));
+        const segments = 18; // More segments for smoother curves
+        const length = boss.width * (0.7 + 0.3 * Math.sin(boss.pulsePhase + j * 0.5));
         
         for (let k = 0; k <= segments; k++) {
           const t = k / segments;
-          const angle = baseAngle + Math.sin(flowOffset + t * 5) * 0.8;
-          const dist = length * t;
+          // More complex waveform for more organic motion
+          const angle = baseAngle + 
+                        Math.sin(flowOffset + t * 5) * 0.7 + 
+                        Math.sin(flowOffset * 1.5 + t * 3) * 0.3;
+          const dist = length * Math.pow(t, 0.8); // Non-linear growth for more elegant shape
           
           curve.push({
             x: centerX + Math.cos(angle) * dist,
@@ -2646,25 +2741,34 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         }
         
-        // Draw the tendril path
+        // Draw the tendril path with variable opacity
         ctx.beginPath();
+        ctx.globalAlpha = 0.7 + 0.3 * Math.sin(flowOffset);
+        
+        // Use quadratic curves for smoother tendrils
         ctx.moveTo(curve[0].x, curve[0].y);
         
-        for (let k = 1; k < curve.length; k++) {
-          ctx.lineTo(curve[k].x, curve[k].y);
+        for (let k = 1; k < curve.length - 1; k++) {
+          const xc = (curve[k].x + curve[k+1].x) / 2;
+          const yc = (curve[k].y + curve[k+1].y) / 2;
+          ctx.quadraticCurveTo(curve[k].x, curve[k].y, xc, yc);
         }
         
+        // Add final curve to last point
+        ctx.lineTo(curve[curve.length-1].x, curve[curve.length-1].y);
         ctx.stroke();
+        ctx.globalAlpha = 1.0;
         
-        // Add particles along the tendrils
+        // Add particles along the tendrils at more strategic points
         if (Math.random() < 0.3) {
-          const particleIndex = Math.floor(Math.random() * (curve.length - 1));
+          // Particles more toward the end of tendrils
+          const particleIndex = Math.floor((segments/2) + Math.random() * (segments/2));
           const particle = {
             x: curve[particleIndex].x,
             y: curve[particleIndex].y,
             velocityX: (Math.random() - 0.5) * 2,
             velocityY: (Math.random() - 0.5) * 2,
-            size: 2 + Math.random() * 3,
+            size: 1 + Math.random() * 3,
             life: 20 + Math.random() * 20,
             color: boss.currentColor
           };
@@ -2672,66 +2776,128 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
       
-      // Central void/core - the "face"
+      // ====== CENTRAL VOID ======
+      // More sophisticated central void/core design
       const voidGradient = ctx.createRadialGradient(
         centerX, centerY, 0,
-        centerX, centerY, boss.width/4
+        centerX, centerY, boss.width/3.5
       );
-      voidGradient.addColorStop(0, 'rgba(0, 0, 0, 0.9)');
-      voidGradient.addColorStop(0.5, 'rgba(20, 0, 40, 0.8)');
-      voidGradient.addColorStop(0.8, boss.currentColor);
+      voidGradient.addColorStop(0, 'rgba(10, 0, 20, 0.95)');
+      voidGradient.addColorStop(0.4, 'rgba(20, 0, 40, 0.9)');
+      voidGradient.addColorStop(0.7, 'rgba(40, 0, 60, 0.8)');
+      voidGradient.addColorStop(0.9, boss.deepColor);
       voidGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
       
       ctx.beginPath();
       ctx.fillStyle = voidGradient;
-      ctx.arc(centerX, centerY, boss.width/4, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, boss.width/3.5, 0, Math.PI * 2);
       ctx.fill();
       
-      // Haunting glow effect in the center - resembling a mouth or void
-      ctx.beginPath();
-      const mouthWidth = boss.width/6 * (1 + 0.3 * Math.sin(boss.pulsePhase * 2));
-      const mouthHeight = boss.height/12 * (1 + 0.5 * Math.abs(Math.sin(boss.pulsePhase)));
-      ctx.ellipse(
-        centerX, centerY + boss.height/10,
-        mouthWidth, // horizontal radius
-        mouthHeight, // vertical radius
-        0, 0, Math.PI * 2
-      );
+      // Add a subtle, elegant energy pattern in the center
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(-boss.innerRotation * 0.7); // Opposite rotation to inner structure
       
-      // Create gradient for the "mouth"
-      const mouthGradient = ctx.createRadialGradient(
-        centerX, centerY + boss.height/10, 0,
-        centerX, centerY + boss.height/10, mouthWidth
-      );
-      mouthGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
-      mouthGradient.addColorStop(0.3, 'rgba(255, 100, 100, 0.8)');
-      mouthGradient.addColorStop(1, 'rgba(100, 0, 0, 0)');
+      // Create enigmatic runes or patterns
+      for (let j = 0; j < 5; j++) {
+        const runeAngle = (j / 5) * Math.PI * 2;
+        const runeDistance = boss.width/6 * (0.8 + 0.2 * Math.sin(boss.pulsePhase + j));
+        
+        ctx.save();
+        ctx.rotate(runeAngle);
+        
+        // Create a stylized rune/symbol
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.lineWidth = 1.5;
+        
+        // Draw a vertical line with a circle at the end
+        ctx.moveTo(0, -runeDistance * 0.3);
+        ctx.lineTo(0, runeDistance);
+        ctx.stroke();
+        
+        // Small circle at the end
+        ctx.beginPath();
+        ctx.arc(0, runeDistance, runeDistance * 0.2, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        ctx.restore();
+      }
       
-      ctx.fillStyle = mouthGradient;
-      ctx.fill();
+      ctx.restore();
       
-      // Create a subtle energy ring
-      ctx.beginPath();
-      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${0.3 + 0.2 * Math.sin(boss.glowPhase)})`;
-      ctx.lineWidth = 8;
-      ctx.arc(centerX, centerY, boss.width * 0.7 * (1 + 0.05 * Math.sin(boss.pulsePhase * 3)), 0, Math.PI * 2);
-      ctx.stroke();
+      // ====== ENERGY RING ======
+      // Create a more elegant, detailed energy ring with multiple layers
+      for (let j = 0; j < 2; j++) {
+        const ringRadius = boss.width * (0.5 + j * 0.25) * (1 + 0.05 * Math.sin(boss.pulsePhase * (2+j)));
+        const ringOpacity = 0.2 + 0.1 * Math.sin(boss.glowPhase);
+        
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${ringOpacity})`;
+        ctx.lineWidth = 3 - j;
+        ctx.arc(centerX, centerY, ringRadius, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        // Add small details to the rings
+        const detailCount = 8 + j * 4;
+        for (let k = 0; k < detailCount; k++) {
+          const detailAngle = (k / detailCount) * Math.PI * 2 + boss.innerRotation * (j+1);
+          const x = centerX + Math.cos(detailAngle) * ringRadius;
+          const y = centerY + Math.sin(detailAngle) * ringRadius;
+          
+          ctx.beginPath();
+          ctx.arc(x, y, 2 + j, 0, Math.PI * 2);
+          ctx.fillStyle = boss.accentColor;
+          ctx.fill();
+        }
+      }
       
-      // Add ambient particles surrounding the boss
-      if (Math.random() < 0.3) {
+      // ====== AMBIENT PARTICLES ======
+      // Add ambient particles with more sophisticated placement
+      if (Math.random() < 0.5) {
         const angle = Math.random() * Math.PI * 2;
-        const distance = boss.width * (0.6 + Math.random() * 0.5);
+        // Particles concentrated around the edge of the entity
+        const distance = boss.width * (0.4 + Math.random() * 0.3);
         const px = centerX + Math.cos(angle) * distance;
         const py = centerY + Math.sin(angle) * distance;
+        
+        // More varied particle types
+        const particleType = Math.random();
+        let particleProps;
+        
+        if (particleType < 0.7) {
+          // Small dust-like particles
+          particleProps = {
+            velocityX: (Math.random() - 0.5) * 0.5,
+            velocityY: (Math.random() - 0.5) * 0.5,
+            size: 0.5 + Math.random() * 1.5,
+            life: 10 + Math.random() * 20,
+            color: boss.accentColor
+          };
+        } else if (particleType < 0.9) {
+          // Medium energy sparks
+          particleProps = {
+            velocityX: (Math.random() - 0.5) * 2,
+            velocityY: (Math.random() - 0.5) * 2,
+            size: 1 + Math.random() * 2,
+            life: 5 + Math.random() * 15,
+            color: 'rgba(255, 255, 255, 0.7)'
+          };
+        } else {
+          // Rare energy burst
+          particleProps = {
+            velocityX: (Math.random() - 0.5) * 3,
+            velocityY: (Math.random() - 0.5) * 3,
+            size: 2 + Math.random() * 3,
+            life: 5 + Math.random() * 10,
+            color: boss.currentColor
+          };
+        }
         
         particles.push({
           x: px,
           y: py,
-          velocityX: (Math.random() - 0.5) * 1,
-          velocityY: (Math.random() - 0.5) * 1,
-          size: 1 + Math.random() * 2,
-          life: 10 + Math.random() * 30,
-          color: boss.currentColor
+          ...particleProps
         });
       }
       
