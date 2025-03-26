@@ -139,8 +139,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Timers
   let lastObstacleTime = 0;
   let lastCollectibleTime = 0;
-  let obstacleInterval = 2000;
+  let obstacleInterval = 1500; // Decreased from original value (e.g., 2000)
   let collectibleInterval = 2500;
+  let monsterInterval = 2500; // Decreased from original value
+  let bossInterval = 15000; // Decreased from 20000
   
   // Try to load high score from storage
   try {
@@ -1833,6 +1835,30 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.lineTo(message.x + 200, message.y + 10);
         ctx.stroke();
       }
+      else if (message.special === 'elegantWarning') {
+        // Elegant warning with subtle glow
+        ctx.shadowColor = '#9370DB'; // Purple glow
+        ctx.shadowBlur = 10;
+        
+        // Subtle pulsing
+        const alpha = 0.7 + 0.3 * Math.sin(Date.now() / 300);
+        ctx.globalAlpha = alpha;
+        
+        // Draw elegant text
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = `bold ${message.size}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText(message.text, message.x, message.y);
+        
+        // Thin underline
+        ctx.strokeStyle = '#9370DB';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        const textWidth = ctx.measureText(message.text).width;
+        ctx.moveTo(message.x - textWidth/2, message.y + 5);
+        ctx.lineTo(message.x + textWidth/2, message.y + 5);
+        ctx.stroke();
+      }
       else {
         // Regular messages or glow layers
         ctx.fillStyle = message.color || '#E6BE8A';
@@ -2096,7 +2122,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       // Create obstacles
       if (timestamp - lastObstacleTime > obstacleInterval) {
-        createObstacle();
+        createMultipleObstacles(); // Use this instead of createObstacle()
         lastObstacleTime = timestamp;
       }
       
@@ -2231,8 +2257,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     lastObstacleTime = 0;
     lastCollectibleTime = 0;
-    obstacleInterval = 2000;
+    obstacleInterval = 1500; // Decreased from original value (e.g., 2000)
     collectibleInterval = 2500;
+    monsterInterval = 2500; // Decreased from original value
+    bossInterval = 15000; // Decreased from 20000
     
     gameOver = false;
     gameStarted = true;
@@ -2495,22 +2523,22 @@ document.addEventListener('DOMContentLoaded', () => {
   const bossMonstersEnabled = true;
   let bossMonsters = [];
   let lastBossTime = 0;
-  const bossInterval = 20000; // 20 seconds between boss monsters
+  // const bossInterval = 15000; // Remove this line as it's already declared above
 
   // Function to create a boss monster
   function createBossMonster() {
     const bossMonster = {
       x: canvas.width + 100,
-      y: canvas.height / 2 - 75,
-      width: 150,
-      height: 150,
+      y: canvas.height / 2 - 100, // Adjusted vertical position for larger size
+      width: 250, // Increased from 150
+      height: 250, // Increased from 150
       currentColor: '#9370DB', // Starting color (purple)
       glowColor: '#9370DB',
       velocityX: -0.7 * gameSpeed,
       velocityY: Math.sin(Date.now() / 1000) * 0.5,
-      damage: 75,
-      points: -300,
-      health: 5,
+      damage: 90, // Increased damage to match the larger size
+      points: -400, // Increased penalty
+      health: 7, // Increased health
       pulsePhase: 0,
       flowPhase: 0,
       glowPhase: 0,
@@ -2518,9 +2546,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     
     bossMonsters.push(bossMonster);
-    
-    // Enhanced glowing warning text
-    showGlowingWarning("BEWARE: VOID ENTITY APPROACHING!", canvas.width/2, canvas.height/2);
   }
 
   // Function to update and draw boss monsters
@@ -2714,41 +2739,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Add this new function for showing glowing warning text
+  // Replace the showGlowingWarning function with this simpler version
   function showGlowingWarning(text, x, y) {
-    // Create multiple messages with different sizes for a glow effect
-    const glowColors = ['#800000', '#A00000', '#FF0000', '#FF4000', '#FF8000'];
-    
-    // Add pulsing background first
+    // Single message with subtle glow effect
     messages.push({
-      text: "⚠",
+      text: text,
       x: x,
-      y: y - 40,
+      y: y,
       velocityY: 0,
       life: 120,
-      size: 80,
-      color: '#FF8C00',
-      special: 'pulse'  // Tag for special rendering
+      size: 32,
+      color: '#FFFFFF', // White text
+      special: 'elegantWarning'  // Tag for special rendering
     });
-    
-    // Add the warning text with glow layers
-    for (let i = 0; i < glowColors.length; i++) {
-      messages.push({
-        text: text,
-        x: x,
-        y: y,
-        velocityY: 0,
-        life: 120 - i * 5,
-        size: 40 - i, // Slightly different sizes for blur effect
-        color: glowColors[i],
-        special: i === glowColors.length - 1 ? 'warning' : null // Tag the main layer
-      });
-    }
-    
-    // Add a sound effect if you have one
-    if (typeof playWarningSound === 'function') {
-      playWarningSound();
-    }
   }
 
   // Add this function somewhere near the other utility functions (before it's called)
@@ -2762,5 +2765,15 @@ document.addEventListener('DOMContentLoaded', () => {
       rect1.y < rect2.y + rect2.height &&
       rect1.y + rect1.height > rect2.y
     );
+  }
+
+  // Add this function to spawn multiple obstacles at once
+  function createMultipleObstacles() {
+    // Create 1-3 obstacles at different heights
+    const count = 1 + Math.floor(Math.random() * 3);
+    
+    for (let i = 0; i < count; i++) {
+      createObstacle();
+    }
   }
 }); 
