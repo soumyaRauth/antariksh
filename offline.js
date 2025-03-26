@@ -1789,6 +1789,36 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     ctx.fillText(`Level: ${level}`, 10, 10);
+    
+    // Add copyright at the bottom of the canvas
+    ctx.font = '12px Arial';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'bottom';
+    
+    // Draw the copyright text
+    const copyrightText = '© 2023 Glass - Innovate. Automate. Elevate.';
+    ctx.fillStyle = 'rgba(230, 190, 138, 0.7)';
+    ctx.fillText(copyrightText, canvas.width / 2, canvas.height - 5);
+    
+    // Store the position and width of "Glass" text for click detection
+    // We'll estimate it's roughly at this position
+    const glassText = 'Glass';
+    const fullTextWidth = ctx.measureText(copyrightText).width;
+    const glassTextWidth = ctx.measureText(glassText).width;
+    
+    // Calculate position of "Glass" within the copyright text
+    const startX = canvas.width / 2 - fullTextWidth / 2 + ctx.measureText('© 2023 ').width;
+    
+    // Store these values on the canvas for click detection
+    canvas.glassLinkX = startX;
+    canvas.glassLinkWidth = glassTextWidth;
+    canvas.glassLinkY = canvas.height - 15; // Approximate vertical position
+    canvas.glassLinkHeight = 12; // Font size
+    
+    // Optional: Draw a subtle indicator that Glass is clickable
+    // Slightly different color for "Glass"
+    ctx.fillStyle = '#FFD700'; // Gold color for the clickable part
+    ctx.fillText(glassText, startX + glassTextWidth / 2, canvas.height - 5);
   }
   
   // Draw game over screen
@@ -2366,4 +2396,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Recreate stars after resize
     createStars();
   }
+  
+  // Add this after the init function to handle clicks on the Glass link
+  canvas.addEventListener('click', function(event) {
+    // Get the mouse position relative to the canvas
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
+    
+    // Check if click is on the "Glass" text
+    if (canvas.glassLinkX && 
+        mouseX >= canvas.glassLinkX && 
+        mouseX <= canvas.glassLinkX + canvas.glassLinkWidth &&
+        mouseY >= canvas.glassLinkY && 
+        mouseY <= canvas.glassLinkY + canvas.glassLinkHeight) {
+      
+      // Open Google in a new tab
+      window.open('https://www.google.com', '_blank');
+    }
+  });
 }); 
