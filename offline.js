@@ -1689,6 +1689,30 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('score').textContent = Math.floor(score);
       }
     }
+    
+    // Add this to your checkCollisions function to handle boss monster collisions
+    // Check collisions with boss monsters
+    if (bossMonsters && bossMonsters.length > 0) {
+      for (let i = bossMonsters.length - 1; i >= 0; i--) {
+        const boss = bossMonsters[i];
+        
+        if (isColliding(player, boss)) {
+          // Player takes massive damage
+          reducePrana(boss.damage);
+          score += boss.points; // Negative points
+          
+          // Visual effects
+          createExplosionParticles(player.x + player.width/2, player.y + player.height/2);
+          showMessage(`COSMIC DRAIN: -${boss.damage}!`, player.x, player.y - 30, '#FF0000');
+          
+          // Push player back
+          player.velocityY = (Math.random() > 0.5 ? 1 : -1) * 5;
+          
+          // Push boss back slightly
+          boss.x += 30;
+        }
+      }
+    }
   }
   
   // Create explosion particles
@@ -1771,13 +1795,54 @@ document.addEventListener('DOMContentLoaded', () => {
         continue;
       }
       
-      // Draw message
-      ctx.fillStyle = message.color || '#E6BE8A';
-      ctx.font = `${message.size || 16}px Arial`;
-      ctx.textAlign = 'center';
-      ctx.globalAlpha = Math.min(1, message.life / 20);
-      ctx.fillText(message.text, message.x, message.y);
-      ctx.globalAlpha = 1;
+      // Save context for special effects
+      ctx.save();
+      
+      // Handle special message types
+      if (message.special === 'pulse') {
+        // Pulsing effect for warning symbol
+        const pulseSize = 1 + 0.2 * Math.sin(Date.now() / 100);
+        ctx.globalAlpha = 0.7 + 0.3 * Math.sin(Date.now() / 150);
+        ctx.scale(pulseSize, pulseSize);
+        
+        // Add glow
+        ctx.shadowColor = '#FF4500';
+        ctx.shadowBlur = 15;
+        
+        // Draw the warning symbol
+        ctx.fillStyle = message.color;
+        ctx.font = `${message.size}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.fillText(message.text, message.x / pulseSize, message.y / pulseSize);
+      }
+      else if (message.special === 'warning') {
+        // Main warning text
+        ctx.shadowColor = '#FF0000';
+        ctx.shadowBlur = 15;
+        ctx.fillStyle = message.color;
+        ctx.font = `bold ${message.size}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.globalAlpha = 0.8 + 0.2 * Math.sin(Date.now() / 200);
+        ctx.fillText(message.text, message.x, message.y);
+        
+        // Add a faint horizontal line
+        ctx.strokeStyle = '#FF0000';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(message.x - 200, message.y + 10);
+        ctx.lineTo(message.x + 200, message.y + 10);
+        ctx.stroke();
+      }
+      else {
+        // Regular messages or glow layers
+        ctx.fillStyle = message.color || '#E6BE8A';
+        ctx.font = `${message.size || 16}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.globalAlpha = Math.min(1, message.life / 20);
+        ctx.fillText(message.text, message.x, message.y);
+      }
+      
+      ctx.restore();
     }
   }
   
@@ -2041,11 +2106,20 @@ document.addEventListener('DOMContentLoaded', () => {
         lastCollectibleTime = timestamp;
       }
       
+      // Create boss monsters (less frequently)
+      if (timestamp - lastBossTime > bossInterval && score > 500) { // Only spawn after score > 500
+        createBossMonster();
+        lastBossTime = timestamp;
+      }
+      
       // Update and draw obstacles
       updateAndDrawObstacles(deltaTime);
       
       // Update and draw collectibles
       updateAndDrawCollectibles(deltaTime);
+      
+      // Update and draw boss monsters
+      updateAndDrawBossMonsters(deltaTime);
       
       // Check collisions
       checkCollisions();
@@ -2415,4 +2489,278 @@ document.addEventListener('DOMContentLoaded', () => {
       window.open('https://www.google.com', '_blank');
     }
   });
+
+  // Add this code after where you define other game variables
+  // Define a special boss monster character
+  const bossMonstersEnabled = true;
+  let bossMonsters = [];
+  let lastBossTime = 0;
+  const bossInterval = 20000; // 20 seconds between boss monsters
+
+  // Function to create a boss monster
+  function createBossMonster() {
+    const bossMonster = {
+      x: canvas.width + 100,
+      y: canvas.height / 2 - 75,
+      width: 150,
+      height: 150,
+      currentColor: '#9370DB', // Starting color (purple)
+      glowColor: '#9370DB',
+      velocityX: -0.7 * gameSpeed,
+      velocityY: Math.sin(Date.now() / 1000) * 0.5,
+      damage: 75,
+      points: -300,
+      health: 5,
+      pulsePhase: 0,
+      flowPhase: 0,
+      glowPhase: 0,
+      glowIntensity: 1
+    };
+    
+    bossMonsters.push(bossMonster);
+    
+    // Enhanced glowing warning text
+    showGlowingWarning("BEWARE: VOID ENTITY APPROACHING!", canvas.width/2, canvas.height/2);
+  }
+
+  // Function to update and draw boss monsters
+  function updateAndDrawBossMonsters(deltaTime) {
+    if (!bossMonsters || bossMonsters.length === 0) return;
+    
+    for (let i = bossMonsters.length - 1; i >= 0; i--) {
+      const boss = bossMonsters[i];
+      
+      // Update position and animations
+      boss.x += boss.velocityX * (deltaTime / 16);
+      boss.y += boss.velocityY * (deltaTime / 16);
+      
+      // Bounce off edges
+      if (boss.y < 0 || boss.y + boss.height > canvas.height) {
+        boss.velocityY *= -1;
+        boss.y = Math.max(0, Math.min(boss.y, canvas.height - boss.height));
+      }
+      
+      // Remove if off screen
+      if (boss.x + boss.width < 0) {
+        bossMonsters.splice(i, 1);
+        continue;
+      }
+      
+      // Update animation phases
+      boss.pulsePhase += deltaTime / 300;
+      boss.flowPhase = (boss.flowPhase || 0) + deltaTime / 400;
+      boss.glowPhase = (boss.glowPhase || 0) + deltaTime / 250;
+      
+      // Update color cycles for a more elegant pulsing effect
+      const colorPhase = Math.sin(boss.glowPhase);
+      const r = 100 + 155 * Math.abs(colorPhase);
+      const g = 20 + 50 * Math.abs(colorPhase);
+      const b = 100 + 155 * (1 - Math.abs(colorPhase));
+      boss.currentColor = `rgb(${r}, ${g}, ${b})`;
+      boss.glowIntensity = 1 + 0.7 * Math.sin(boss.glowPhase * 0.7);
+      
+      // Draw the boss
+      ctx.save();
+      
+      // Ethereal glow
+      ctx.shadowColor = boss.currentColor;
+      ctx.shadowBlur = 40 * boss.glowIntensity;
+      
+      // Main ethereal form - vertical oval shape
+      const centerX = boss.x + boss.width/2;
+      const centerY = boss.y + boss.height/2;
+      const pulseFactor = 1 + 0.1 * Math.sin(boss.pulsePhase);
+      
+      // Create gradient for main body
+      const gradient = ctx.createRadialGradient(
+        centerX, centerY, 0,
+        centerX, centerY, boss.width/2 * pulseFactor
+      );
+      gradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+      gradient.addColorStop(0.3, boss.currentColor);
+      gradient.addColorStop(0.7, `rgba(${r/2}, ${g/2}, ${b/2}, 0.8)`);
+      gradient.addColorStop(1, 'rgba(0, 0, 0, 0.5)');
+      
+      // Draw the elegant oval form
+      ctx.beginPath();
+      ctx.fillStyle = gradient;
+      ctx.ellipse(
+        centerX, centerY,
+        boss.width/2.5 * pulseFactor, // horizontal radius
+        boss.height/1.8 * pulseFactor, // vertical radius
+        0, 0, Math.PI * 2
+      );
+      ctx.fill();
+      
+      // Draw swirling energy tendrils
+      const tendrilCount = 12;
+      for (let j = 0; j < tendrilCount; j++) {
+        const baseAngle = (j / tendrilCount) * Math.PI * 2;
+        const flowOffset = boss.flowPhase + (j / tendrilCount) * Math.PI * 2;
+        
+        // Each tendril is a flowing curve
+        ctx.beginPath();
+        ctx.strokeStyle = boss.currentColor;
+        ctx.lineWidth = 4;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = boss.currentColor;
+        
+        // Create flowing curve paths
+        const curve = [];
+        const segments = 15;
+        const length = boss.width * (0.8 + 0.3 * Math.sin(boss.pulsePhase + j * 0.5));
+        
+        for (let k = 0; k <= segments; k++) {
+          const t = k / segments;
+          const angle = baseAngle + Math.sin(flowOffset + t * 5) * 0.8;
+          const dist = length * t;
+          
+          curve.push({
+            x: centerX + Math.cos(angle) * dist,
+            y: centerY + Math.sin(angle) * dist
+          });
+        }
+        
+        // Draw the tendril path
+        ctx.beginPath();
+        ctx.moveTo(curve[0].x, curve[0].y);
+        
+        for (let k = 1; k < curve.length; k++) {
+          ctx.lineTo(curve[k].x, curve[k].y);
+        }
+        
+        ctx.stroke();
+        
+        // Add particles along the tendrils
+        if (Math.random() < 0.3) {
+          const particleIndex = Math.floor(Math.random() * (curve.length - 1));
+          const particle = {
+            x: curve[particleIndex].x,
+            y: curve[particleIndex].y,
+            velocityX: (Math.random() - 0.5) * 2,
+            velocityY: (Math.random() - 0.5) * 2,
+            size: 2 + Math.random() * 3,
+            life: 20 + Math.random() * 20,
+            color: boss.currentColor
+          };
+          particles.push(particle);
+        }
+      }
+      
+      // Central void/core - the "face"
+      const voidGradient = ctx.createRadialGradient(
+        centerX, centerY, 0,
+        centerX, centerY, boss.width/4
+      );
+      voidGradient.addColorStop(0, 'rgba(0, 0, 0, 0.9)');
+      voidGradient.addColorStop(0.5, 'rgba(20, 0, 40, 0.8)');
+      voidGradient.addColorStop(0.8, boss.currentColor);
+      voidGradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+      
+      ctx.beginPath();
+      ctx.fillStyle = voidGradient;
+      ctx.arc(centerX, centerY, boss.width/4, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Haunting glow effect in the center - resembling a mouth or void
+      ctx.beginPath();
+      const mouthWidth = boss.width/6 * (1 + 0.3 * Math.sin(boss.pulsePhase * 2));
+      const mouthHeight = boss.height/12 * (1 + 0.5 * Math.abs(Math.sin(boss.pulsePhase)));
+      ctx.ellipse(
+        centerX, centerY + boss.height/10,
+        mouthWidth, // horizontal radius
+        mouthHeight, // vertical radius
+        0, 0, Math.PI * 2
+      );
+      
+      // Create gradient for the "mouth"
+      const mouthGradient = ctx.createRadialGradient(
+        centerX, centerY + boss.height/10, 0,
+        centerX, centerY + boss.height/10, mouthWidth
+      );
+      mouthGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
+      mouthGradient.addColorStop(0.3, 'rgba(255, 100, 100, 0.8)');
+      mouthGradient.addColorStop(1, 'rgba(100, 0, 0, 0)');
+      
+      ctx.fillStyle = mouthGradient;
+      ctx.fill();
+      
+      // Create a subtle energy ring
+      ctx.beginPath();
+      ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${0.3 + 0.2 * Math.sin(boss.glowPhase)})`;
+      ctx.lineWidth = 8;
+      ctx.arc(centerX, centerY, boss.width * 0.7 * (1 + 0.05 * Math.sin(boss.pulsePhase * 3)), 0, Math.PI * 2);
+      ctx.stroke();
+      
+      // Add ambient particles surrounding the boss
+      if (Math.random() < 0.3) {
+        const angle = Math.random() * Math.PI * 2;
+        const distance = boss.width * (0.6 + Math.random() * 0.5);
+        const px = centerX + Math.cos(angle) * distance;
+        const py = centerY + Math.sin(angle) * distance;
+        
+        particles.push({
+          x: px,
+          y: py,
+          velocityX: (Math.random() - 0.5) * 1,
+          velocityY: (Math.random() - 0.5) * 1,
+          size: 1 + Math.random() * 2,
+          life: 10 + Math.random() * 30,
+          color: boss.currentColor
+        });
+      }
+      
+      ctx.restore();
+    }
+  }
+
+  // Add this new function for showing glowing warning text
+  function showGlowingWarning(text, x, y) {
+    // Create multiple messages with different sizes for a glow effect
+    const glowColors = ['#800000', '#A00000', '#FF0000', '#FF4000', '#FF8000'];
+    
+    // Add pulsing background first
+    messages.push({
+      text: "⚠",
+      x: x,
+      y: y - 40,
+      velocityY: 0,
+      life: 120,
+      size: 80,
+      color: '#FF8C00',
+      special: 'pulse'  // Tag for special rendering
+    });
+    
+    // Add the warning text with glow layers
+    for (let i = 0; i < glowColors.length; i++) {
+      messages.push({
+        text: text,
+        x: x,
+        y: y,
+        velocityY: 0,
+        life: 120 - i * 5,
+        size: 40 - i, // Slightly different sizes for blur effect
+        color: glowColors[i],
+        special: i === glowColors.length - 1 ? 'warning' : null // Tag the main layer
+      });
+    }
+    
+    // Add a sound effect if you have one
+    if (typeof playWarningSound === 'function') {
+      playWarningSound();
+    }
+  }
+
+  // Add this function somewhere near the other utility functions (before it's called)
+  // This should be outside of any other function declarations but inside the DOMContentLoaded event handler
+
+  // Helper function for collision detection
+  function isColliding(rect1, rect2) {
+    return (
+      rect1.x < rect2.x + rect2.width &&
+      rect1.x + rect1.width > rect2.x &&
+      rect1.y < rect2.y + rect2.height &&
+      rect1.y + rect1.height > rect2.y
+    );
+  }
 }); 
